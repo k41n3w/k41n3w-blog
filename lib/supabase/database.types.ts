@@ -1,0 +1,129 @@
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+
+export interface Database {
+  public: {
+    Tables: {
+      posts: {
+        Row: {
+          id: string
+          title: string
+          content: string
+          excerpt: string | null
+          author_id: string
+          created_at: string
+          updated_at: string
+          published_at: string | null
+          status: string
+          views: number
+        }
+        Insert: {
+          id?: string
+          title: string
+          content: string
+          excerpt?: string | null
+          author_id: string
+          created_at?: string
+          updated_at?: string
+          published_at?: string | null
+          status?: string
+          views?: number
+        }
+        Update: {
+          id?: string
+          title?: string
+          content?: string
+          excerpt?: string | null
+          author_id?: string
+          created_at?: string
+          updated_at?: string
+          published_at?: string | null
+          status?: string
+          views?: number
+        }
+      }
+      comments: {
+        Row: {
+          id: string
+          post_id: string
+          author: string
+          author_email: string | null
+          content: string
+          created_at: string
+          status: string
+          likes: number
+        }
+        Insert: {
+          id?: string
+          post_id: string
+          author: string
+          author_email?: string | null
+          content: string
+          created_at?: string
+          status?: string
+          likes?: number
+        }
+        Update: {
+          id?: string
+          post_id?: string
+          author?: string
+          author_email?: string | null
+          content?: string
+          created_at?: string
+          status?: string
+          likes?: number
+        }
+      }
+      tags: {
+        Row: {
+          id: string
+          name: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          created_at?: string
+        }
+      }
+      post_tags: {
+        Row: {
+          post_id: string
+          tag_id: string
+        }
+        Insert: {
+          post_id: string
+          tag_id: string
+        }
+        Update: {
+          post_id?: string
+          tag_id?: string
+        }
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      increment_post_views: {
+        Args: {
+          post_id: string
+        }
+        Returns: undefined
+      }
+      increment_comment_likes: {
+        Args: {
+          comment_id: string
+        }
+        Returns: undefined
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+  }
+}
