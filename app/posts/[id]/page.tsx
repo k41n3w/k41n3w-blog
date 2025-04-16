@@ -13,15 +13,24 @@ export const revalidate = 60 // Revalidate this page every 60 seconds
 export default async function PostPage({ params }: { params: { id: string } }) {
   const supabase = createClient()
 
-  // Fetch post without any joins
+  console.log("Fetching post with ID:", params.id)
+
+  // Buscar post sem joins
   const { data: post, error: postError } = await supabase.from(TABLES.POSTS).select("*").eq("id", params.id).single()
 
-  if (postError || !post) {
+  if (postError) {
     console.error("Error fetching post:", postError)
     notFound()
   }
 
-  // Fetch comments separately
+  if (!post) {
+    console.error("Post not found with ID:", params.id)
+    notFound()
+  }
+
+  console.log("Post fetched successfully:", post)
+
+  // Buscar comentários separadamente
   const { data: comments = [], error: commentsError } = await supabase
     .from(TABLES.COMMENTS)
     .select("*")
@@ -30,10 +39,12 @@ export default async function PostPage({ params }: { params: { id: string } }) {
 
   if (commentsError) {
     console.error("Error fetching comments:", commentsError)
-    // Continue even if comments fetch fails
+    // Continuar mesmo se a busca de comentários falhar
+  } else {
+    console.log("Comments fetched successfully:", comments)
   }
 
-  // Fetch tags separately
+  // Buscar tags separadamente
   const { data: postTags = [], error: tagsError } = await supabase
     .from(TABLES.POST_TAGS)
     .select("tag_id")
@@ -41,29 +52,37 @@ export default async function PostPage({ params }: { params: { id: string } }) {
 
   if (tagsError) {
     console.error("Error fetching post tags:", tagsError)
-    // Continue even if tags fetch fails
+    // Continuar mesmo se a busca de tags falhar
+  } else {
+    console.log("Post tags fetched successfully:", postTags)
   }
 
-  // Get tag names if we have tag IDs
+  // Obter nomes das tags se tivermos IDs de tags
   let tags: string[] = []
   if (postTags.length > 0) {
     const tagIds = postTags.map((pt) => pt.tag_id)
-    const { data: tagData = [] } = await supabase.from(TABLES.TAGS).select("name").in("id", tagIds)
+    const { data: tagData = [], error: tagNamesError } = await supabase
+      .from(TABLES.TAGS)
+      .select("name")
+      .in("id", tagIds)
 
-    tags = tagData.map((t) => t.name)
+    if (tagNamesError) {
+      console.error("Error fetching tag names:", tagNamesError)
+    } else {
+      tags = tagData.map((t) => t.name)
+      console.log("Tag names fetched successfully:", tags)
+    }
   }
 
-  // Try to increment view count, but don't fail if it doesn't work
+  // Tentar incrementar a contagem de visualizações, mas não falhar se não funcionar
   try {
-    await supabase
-      .from(TABLES.POSTS)
-      .update({ views: (post.views || 0) + 1 })
-      .eq("id", params.id)
+    await supabase.rpc("increment_post_views", { post_id: params.id })
+    console.log("View count incremented successfully")
   } catch (error) {
     console.error("Error incrementing views:", error)
   }
 
-  // Format the author name from author_id
+  // Formatar o nome do autor a partir do author_id
   const authorId = post.author_id || "unknown"
   const authorName = authorId.split("-")[0] || "Author"
 
@@ -94,7 +113,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
             date: new Date(post.created_at).toLocaleDateString(),
             author: authorName,
             authorAvatar: "/placeholder.svg?height=40&width=40",
-            likes: 0, // We'll implement likes later
+            likes: post.likes || 0,
             comments: comments.length,
             tags,
           }}

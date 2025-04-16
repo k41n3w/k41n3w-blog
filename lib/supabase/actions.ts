@@ -4,6 +4,7 @@ import { createServerActionClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import { TABLES } from "./config"
 import type { Database } from "./database.types"
 
 // Create a Supabase client for server actions
@@ -55,12 +56,15 @@ export async function createPost(formData: FormData) {
   const excerpt = formData.get("excerpt") as string
   const status = formData.get("status") as string
   const tagsInput = formData.get("tags") as string
-  const tags = tagsInput.split(",").map((tag) => tag.trim())
+  const tags = tagsInput
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean)
 
   try {
     // Insert the post
     const { data: post, error: postError } = await supabase
-      .from("posts")
+      .from(TABLES.POSTS)
       .insert({
         title,
         content,
@@ -81,11 +85,11 @@ export async function createPost(formData: FormData) {
         if (!tagName) continue
 
         // Check if tag exists
-        const { data: existingTag } = await supabase.from("tags").select("id").eq("name", tagName).single()
+        const { data: existingTag } = await supabase.from(TABLES.TAGS).select("id").eq("name", tagName).single()
 
         if (!existingTag) {
           // Create new tag
-          await supabase.from("tags").insert({ name: tagName })
+          await supabase.from(TABLES.TAGS).insert({ name: tagName })
         }
       }
 
@@ -93,10 +97,10 @@ export async function createPost(formData: FormData) {
       for (const tagName of tags) {
         if (!tagName) continue
 
-        const { data: tag } = await supabase.from("tags").select("id").eq("name", tagName).single()
+        const { data: tag } = await supabase.from(TABLES.TAGS).select("id").eq("name", tagName).single()
 
         if (tag) {
-          await supabase.from("post_tags").insert({
+          await supabase.from(TABLES.POST_TAGS).insert({
             post_id: post.id,
             tag_id: tag.id,
           })
@@ -120,12 +124,15 @@ export async function updatePost(postId: string, formData: FormData) {
   const excerpt = formData.get("excerpt") as string
   const status = formData.get("status") as string
   const tagsInput = formData.get("tags") as string
-  const tags = tagsInput.split(",").map((tag) => tag.trim())
+  const tags = tagsInput
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean)
 
   try {
     // Update the post
     const { error: postError } = await supabase
-      .from("posts")
+      .from(TABLES.POSTS)
       .update({
         title,
         content,
@@ -139,7 +146,7 @@ export async function updatePost(postId: string, formData: FormData) {
     if (postError) throw postError
 
     // Remove existing tag associations
-    await supabase.from("post_tags").delete().eq("post_id", postId)
+    await supabase.from(TABLES.POST_TAGS).delete().eq("post_id", postId)
 
     // Handle tags
     if (tags.length > 0) {
@@ -148,11 +155,11 @@ export async function updatePost(postId: string, formData: FormData) {
         if (!tagName) continue
 
         // Check if tag exists
-        const { data: existingTag } = await supabase.from("tags").select("id").eq("name", tagName).single()
+        const { data: existingTag } = await supabase.from(TABLES.TAGS).select("id").eq("name", tagName).single()
 
         if (!existingTag) {
           // Create new tag
-          await supabase.from("tags").insert({ name: tagName })
+          await supabase.from(TABLES.TAGS).insert({ name: tagName })
         }
       }
 
@@ -160,10 +167,10 @@ export async function updatePost(postId: string, formData: FormData) {
       for (const tagName of tags) {
         if (!tagName) continue
 
-        const { data: tag } = await supabase.from("tags").select("id").eq("name", tagName).single()
+        const { data: tag } = await supabase.from(TABLES.TAGS).select("id").eq("name", tagName).single()
 
         if (tag) {
-          await supabase.from("post_tags").insert({
+          await supabase.from(TABLES.POST_TAGS).insert({
             post_id: postId,
             tag_id: tag.id,
           })
@@ -184,7 +191,7 @@ export async function deletePost(postId: string) {
   const supabase = createClient()
 
   try {
-    const { error } = await supabase.from("posts").delete().eq("id", postId)
+    const { error } = await supabase.from(TABLES.POSTS).delete().eq("id", postId)
 
     if (error) throw error
 
@@ -206,7 +213,7 @@ export async function createComment(formData: FormData) {
   const content = formData.get("content") as string
 
   try {
-    const { error } = await supabase.from("comments").insert({
+    const { error } = await supabase.from(TABLES.COMMENTS).insert({
       post_id: postId,
       author,
       author_email: email || null,
@@ -228,7 +235,7 @@ export async function approveComment(commentId: string) {
 
   try {
     const { data, error } = await supabase
-      .from("comments")
+      .from(TABLES.COMMENTS)
       .update({ status: "Approved" })
       .eq("id", commentId)
       .select("post_id")
@@ -248,7 +255,7 @@ export async function deleteComment(commentId: string) {
   const supabase = createClient()
 
   try {
-    const { data, error } = await supabase.from("comments").delete().eq("id", commentId).select("post_id").single()
+    const { data, error } = await supabase.from(TABLES.COMMENTS).delete().eq("id", commentId).select("post_id").single()
 
     if (error) throw error
 
@@ -265,18 +272,12 @@ export async function incrementPostLikes(postId: string) {
   const supabase = createClient()
 
   try {
-    // Get current likes
-    const { data: post, error: fetchError } = await supabase.from("posts").select("likes").eq("id", postId).single()
+    // Call the RPC function
+    const { error } = await supabase.rpc("increment_post_likes", {
+      post_id: postId,
+    })
 
-    if (fetchError) throw fetchError
-
-    // Increment likes
-    const { error: updateError } = await supabase
-      .from("posts")
-      .update({ likes: (post.likes || 0) + 1 })
-      .eq("id", postId)
-
-    if (updateError) throw updateError
+    if (error) throw error
 
     revalidatePath(`/posts/${postId}`)
     return { success: true }
@@ -297,7 +298,11 @@ export async function incrementCommentLikes(commentId: string) {
     if (error) throw error
 
     // Get the post ID to revalidate the path
-    const { data, error: fetchError } = await supabase.from("comments").select("post_id").eq("id", commentId).single()
+    const { data, error: fetchError } = await supabase
+      .from(TABLES.COMMENTS)
+      .select("post_id")
+      .eq("id", commentId)
+      .single()
 
     if (fetchError) throw fetchError
 

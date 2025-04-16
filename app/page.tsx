@@ -11,17 +11,7 @@ export const revalidate = 60 // Revalidate this page every 60 seconds
 export default async function Home() {
   const supabase = createClient()
 
-  // Verificar tabelas existentes usando SQL direto
-  const { data: tableCheck, error: tableCheckError } = await supabase.rpc("check_table_exists", {
-    table_name: "posts",
-  })
-
-  console.log("Table check result:", tableCheck)
-  if (tableCheckError) {
-    console.error("Error checking table:", tableCheckError)
-  }
-
-  // Tentar buscar posts diretamente
+  // Buscar posts publicados
   let posts = []
   let error = null
 
@@ -34,6 +24,7 @@ export default async function Home() {
         excerpt, 
         created_at,
         views,
+        likes,
         author_id
       `)
       .eq("status", "Published")
@@ -52,11 +43,11 @@ export default async function Home() {
     error = e
   }
 
-  // Transform the data to match our component's expected format
+  // Transformar os dados para o formato esperado pelo componente
   const formattedPosts = posts.map((post) => {
-    // Use a simple author display for now
+    // Usar uma exibição simples para o autor
     const authorId = post.author_id || "unknown"
-    // Extract a simple name from the UUID if possible
+    // Extrair um nome simples do UUID se possível
     const authorName = authorId.split("-")[0] || "Author"
 
     return {
@@ -65,8 +56,8 @@ export default async function Home() {
       excerpt: post.excerpt || "No excerpt available",
       date: new Date(post.created_at).toLocaleDateString(),
       author: authorName,
-      likes: 0, // We'll implement likes later
-      comments: 0, // We'll fetch comments separately later
+      likes: post.likes || 0,
+      comments: 0, // Buscaremos os comentários separadamente depois
     }
   })
 
