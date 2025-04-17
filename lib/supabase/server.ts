@@ -14,10 +14,12 @@ export function createClient() {
     console.error("NEXT_PUBLIC_SUPABASE_ANON_KEY não está definida")
   }
 
+  console.log("Criando cliente Supabase no servidor com URL:", process.env.NEXT_PUBLIC_SUPABASE_URL)
+
   try {
     return createServerClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, // Certifique-se de que esta é a chave anônima
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
           get(name) {
@@ -32,6 +34,12 @@ export function createClient() {
         },
         // Adicionar opções para debug
         debug: true,
+        // Desativar verificação de CORS para testes
+        global: {
+          headers: {
+            "X-Client-Info": "supabase-js/2.38.4",
+          },
+        },
       },
     )
   } catch (error) {
