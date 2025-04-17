@@ -1,9 +1,43 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { TooltipProvider, TooltipRoot, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
+import { Github, Linkedin, Facebook, Instagram, FileText } from "lucide-react"
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
+
+  const socialLinks = [
+    {
+      name: "Medium",
+      icon: <FileText className="h-5 w-5" />,
+      url: "https://medium.com/@caio_ramos",
+      color: "hover:text-white",
+    },
+    {
+      name: "LinkedIn",
+      icon: <Linkedin className="h-5 w-5" />,
+      url: "https://www.linkedin.com/in/k41n3w/",
+      color: "hover:text-blue-400",
+    },
+    {
+      name: "GitHub",
+      icon: <Github className="h-5 w-5" />,
+      url: "https://github.com/k41n3w/",
+      color: "hover:text-purple-400",
+    },
+    {
+      name: "Instagram",
+      icon: <Instagram className="h-5 w-5" />,
+      url: "https://www.instagram.com/k41n3w/",
+      color: "hover:text-pink-500",
+    },
+    {
+      name: "Facebook",
+      icon: <Facebook className="h-5 w-5" />,
+      url: "https://www.facebook.com/kaaineo/",
+      color: "hover:text-blue-500",
+    },
+  ]
 
   return (
     <footer className="py-8 bg-gray-900 border-t border-gray-800">
@@ -29,11 +63,6 @@ export default function Footer() {
               <li>
                 <Link href="/archive" className="hover:text-red-400">
                   Archive
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="hover:text-red-400">
-                  Contact
                 </Link>
               </li>
             </ul>
@@ -66,8 +95,36 @@ export default function Footer() {
             </div>
           </div>
         </div>
-        <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-500">
-          <p>&copy; {currentYear} k41n3w. All rights reserved.</p>
+
+        {/* Social Media Icons */}
+        <div className="mt-8 pt-6 border-t border-gray-800 flex flex-col items-center">
+          <h3 className="text-lg font-semibold text-red-500 mb-4">Connect With Me</h3>
+          <div className="flex space-x-6 mb-6">
+            {socialLinks.map((social) => (
+              <a
+                key={social.name}
+                href={social.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`text-gray-400 transition-all duration-300 transform hover:scale-110 ${social.color}`}
+                aria-label={social.name}
+              >
+                <TooltipProvider>
+                  <TooltipRoot>
+                    <TooltipTrigger asChild>
+                      <div className="bg-gray-800 p-3 rounded-full hover:bg-gray-700 transition-colors">
+                        {social.icon}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{social.name}</p>
+                    </TooltipContent>
+                  </TooltipRoot>
+                </TooltipProvider>
+              </a>
+            ))}
+          </div>
+          <p className="text-gray-500">&copy; {currentYear} k41n3w. All rights reserved.</p>
         </div>
       </div>
     </footer>
