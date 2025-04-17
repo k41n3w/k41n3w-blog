@@ -3,18 +3,33 @@
 import type React from "react"
 
 import { useEffect, useState } from "react"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const pathname = usePathname()
-  const supabase = createClient()
+  const router = useRouter()
+
+  // Criar o cliente Supabase
+  let supabase: ReturnType<typeof createClient>
+
+  try {
+    supabase = createClient()
+  } catch (error) {
+    console.error("Erro ao criar cliente Supabase no layout:", error)
+  }
 
   useEffect(() => {
     async function checkAuth() {
       try {
+        if (!supabase) {
+          console.error("Cliente Supabase não inicializado no layout")
+          setIsLoading(false)
+          return
+        }
+
         const { data, error } = await supabase.auth.getSession()
 
         if (error) {
@@ -29,7 +44,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         // Se não estiver autenticado e não estiver na página de login, redirecionar
         if (!hasSession && pathname !== "/admin/login") {
           console.log("Redirecionando para login a partir do layout")
-          window.location.href = "/admin/login"
+          router.push("/admin/login")
         }
 
         setIsLoading(false)
@@ -39,7 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         // Em caso de erro, redirecionar para login se não estiver na página de login
         if (pathname !== "/admin/login") {
-          window.location.href = "/admin/login"
+          router.push("/admin/login")
         }
       }
     }
@@ -47,20 +62,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     checkAuth()
 
     // Configurar um listener para mudanças de autenticação
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Evento de autenticação no layout:", event)
-      const isAuth = !!session
-      setIsAuthenticated(isAuth)
+    if (supabase) {
+      const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+        console.log("Evento de autenticação no layout:", event)
+        const isAuth = !!session
+        setIsAuthenticated(isAuth)
 
-      if (!isAuth && pathname !== "/admin/login") {
-        window.location.href = "/admin/login"
+        if (!isAuth && pathname !== "/admin/login") {
+          router.push("/admin/login")
+        }
+      })
+
+      return () => {
+        if (authListener?.subscription) {
+          authListener.subscription.unsubscribe()
+        }
       }
-    })
-
-    return () => {
-      authListener.subscription.unsubscribe()
     }
-  }, [pathname, supabase.auth])
+  }, [pathname, router])
 
   // Mostrar um indicador de carregamento enquanto verifica a autenticação
   if (isLoading) {

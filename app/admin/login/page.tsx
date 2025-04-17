@@ -18,21 +18,36 @@ export default function AdminLogin() {
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
+  const [loginError, setLoginError] = useState<string | null>(null)
   const { toast } = useToast()
   const router = useRouter()
-  const supabase = createClient()
+
+  // Criar o cliente Supabase
+  let supabase: ReturnType<typeof createClient>
+
+  try {
+    supabase = createClient()
+  } catch (error) {
+    console.error("Erro ao criar cliente Supabase:", error)
+  }
 
   // Verificar se o usuário já está autenticado ao carregar a página
   useEffect(() => {
     async function checkAuth() {
       try {
+        if (!supabase) {
+          console.error("Cliente Supabase não inicializado")
+          setIsCheckingAuth(false)
+          return
+        }
+
         const { data } = await supabase.auth.getSession()
 
         console.log("Verificando sessão:", data.session ? "Encontrada" : "Não encontrada")
 
         if (data.session) {
           console.log("Usuário já autenticado, redirecionando para o dashboard")
-          window.location.href = "/admin/dashboard"
+          router.push("/admin/dashboard")
         } else {
           setIsCheckingAuth(false)
         }
@@ -43,30 +58,38 @@ export default function AdminLogin() {
     }
 
     checkAuth()
-  }, [supabase.auth])
+  }, [router])
 
   // Adicionar um listener para mudanças de autenticação
   useEffect(() => {
+    if (!supabase) return
+
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("Evento de autenticação:", event)
 
       if (event === "SIGNED_IN" && session) {
         console.log("Usuário autenticado via listener, redirecionando...")
-        // Usar window.location para um redirecionamento mais forte
-        window.location.href = "/admin/dashboard"
+        router.push("/admin/dashboard")
       }
     })
 
     return () => {
-      authListener.subscription.unsubscribe()
+      if (authListener?.subscription) {
+        authListener.subscription.unsubscribe()
+      }
     }
-  }, [supabase.auth])
+  }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setLoginError(null)
 
     try {
+      if (!supabase) {
+        throw new Error("Cliente Supabase não inicializado")
+      }
+
       // Usar diretamente o cliente Supabase para autenticação
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -75,6 +98,7 @@ export default function AdminLogin() {
 
       if (error) {
         console.error("Erro de login:", error.message)
+        setLoginError(error.message)
         toast({
           title: "Erro de login",
           description: error.message,
@@ -93,13 +117,10 @@ export default function AdminLogin() {
           description: "Redirecionando para o dashboard...",
         })
 
-        // Usar window.location para um redirecionamento mais forte
-        // O redirecionamento será tratado pelo listener de autenticação
-        // Mas adicionamos um fallback aqui
-        setTimeout(() => {
-          window.location.href = "/admin/dashboard"
-        }, 1000)
+        // Redirecionar para o dashboard
+        router.push("/admin/dashboard")
       } else {
+        setLoginError("Não foi possível autenticar. Tente novamente.")
         toast({
           title: "Erro de login",
           description: "Não foi possível autenticar. Tente novamente.",
@@ -109,6 +130,7 @@ export default function AdminLogin() {
       }
     } catch (error: any) {
       console.error("Exceção de login:", error)
+      setLoginError(error.message || "Ocorreu um erro ao tentar fazer login")
       toast({
         title: "Erro de login",
         description: "Ocorreu um erro ao tentar fazer login. Tente novamente.",
@@ -153,6 +175,12 @@ export default function AdminLogin() {
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
+              {loginError && (
+                <div className="bg-red-900/50 border border-red-700 text-white px-4 py-3 rounded">
+                  <p>{loginError}</p>
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input

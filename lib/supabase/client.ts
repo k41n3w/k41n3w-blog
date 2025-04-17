@@ -22,19 +22,13 @@ export function createClient() {
   }
 
   try {
+    // Remova a opção 'cookies' para usar automaticamente document.cookie
     globalForSupabase.supabase = createBrowserClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         debug: true,
-        // Adicionar opções de persistência de cookies
-        cookies: {
-          name: "sb-session",
-          lifetime: 60 * 60 * 24 * 7, // 7 dias
-          domain: "",
-          path: "/",
-          sameSite: "lax",
-        },
+        // Remova a configuração de cookies para usar document.cookie automaticamente
       },
     )
 
