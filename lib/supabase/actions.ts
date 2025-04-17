@@ -308,8 +308,11 @@ export async function deletePost(postId: string) {
     }
 
     console.log("Post excluído com sucesso")
+    // Revalidar caminhos relevantes
     revalidatePath("/admin/dashboard")
     revalidatePath("/")
+    revalidatePath("/archive")
+
     return { success: true }
   } catch (error: any) {
     console.error("Exceção ao excluir post:", error)

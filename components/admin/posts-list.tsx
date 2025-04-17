@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Edit, Trash2, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -26,7 +27,9 @@ interface PostsListProps {
 export default function PostsList({ posts }: PostsListProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [postToDelete, setPostToDelete] = useState<string | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
   const { toast } = useToast()
+  const router = useRouter()
 
   const handleDeleteClick = (postId: string) => {
     setPostToDelete(postId)
@@ -37,6 +40,9 @@ export default function PostsList({ posts }: PostsListProps) {
     if (!postToDelete) return
 
     try {
+      setIsDeleting(true)
+      console.log("Iniciando exclusão do post:", postToDelete)
+
       const result = await deletePost(postToDelete)
 
       if (result.error) {
@@ -47,7 +53,16 @@ export default function PostsList({ posts }: PostsListProps) {
         title: "Post excluído",
         description: "O post foi excluído com sucesso.",
       })
-    } catch (error) {
+
+      // Forçar recarregamento da página para atualizar a lista
+      router.refresh()
+
+      // Pequeno atraso para garantir que a UI seja atualizada
+      setTimeout(() => {
+        window.location.reload()
+      }, 500)
+    } catch (error: any) {
+      console.error("Erro ao excluir post:", error)
       toast({
         title: "Erro",
         description: "Não foi possível excluir o post. Tente novamente.",
@@ -56,6 +71,7 @@ export default function PostsList({ posts }: PostsListProps) {
     } finally {
       setDeleteDialogOpen(false)
       setPostToDelete(null)
+      setIsDeleting(false)
     }
   }
 
@@ -145,9 +161,18 @@ export default function PostsList({ posts }: PostsListProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-gray-800 text-white hover:bg-gray-700">Cancelar</AlertDialogCancel>
-            <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={handleConfirmDelete}>
-              Excluir
+            <AlertDialogCancel className="bg-gray-800 text-white hover:bg-gray-700" disabled={isDeleting}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700"
+              onClick={(e) => {
+                e.preventDefault()
+                handleConfirmDelete()
+              }}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Excluindo..." : "Excluir"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
