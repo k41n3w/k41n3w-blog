@@ -25,16 +25,16 @@ export default async function PostsList({ page, postsPerPage, tag, sort }: Posts
       .from(TABLES.POSTS)
       .select(
         `
-        id, 
-        title, 
-        excerpt, 
-        content,
-        created_at,
-        published_at,
-        views,
-        likes,
-        author_id
-      `,
+       id, 
+       title, 
+       excerpt, 
+       content,
+       created_at,
+       published_at,
+       views,
+       likes,
+       author_id
+     `,
       )
       .eq("status", "Published")
 
@@ -183,10 +183,6 @@ export default async function PostsList({ page, postsPerPage, tag, sort }: Posts
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {posts.map((post) => {
-          // Extrair um nome simples do UUID do autor
-          const authorId = post.author_id || "unknown"
-          const authorName = authorId.split("-")[0] || "Author"
-
           // Obter as tags do post (com fallback para array vazio)
           const tags = postTagsMap[post.id] || []
 
@@ -206,7 +202,7 @@ export default async function PostsList({ page, postsPerPage, tag, sort }: Posts
                   <Calendar className="h-4 w-4 mr-1" />
                   <span>{new Date(post.created_at).toLocaleDateString()}</span>
                   <span className="mx-2">•</span>
-                  <span>por {authorName}</span>
+                  <span>por Caio Ramos</span>
                 </div>
               </CardHeader>
               <CardContent className="flex-grow">

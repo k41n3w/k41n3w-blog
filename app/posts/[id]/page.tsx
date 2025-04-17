@@ -83,10 +83,6 @@ export default async function PostPage({ params }: { params: { id: string } }) {
     console.error("Error incrementing views:", error)
   }
 
-  // Formatar o nome do autor a partir do author_id
-  const authorId = post.author_id || "unknown"
-  const authorName = authorId.split("-")[0] || "Author"
-
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
@@ -112,8 +108,8 @@ export default async function PostPage({ params }: { params: { id: string } }) {
             title: post.title,
             content: post.content,
             date: new Date(post.created_at).toLocaleDateString(),
-            author: authorName,
-            authorAvatar: "/placeholder.svg?height=40&width=40",
+            author: "Caio Ramos", // Nome fixo do autor
+            authorAvatar: "/images/profile.jpg", // Usar a mesma imagem da página About
             likes: post.likes || 0,
             comments: comments.length,
             tags,
@@ -128,7 +124,6 @@ export default async function PostPage({ params }: { params: { id: string } }) {
           comments={comments.map((comment) => ({
             id: comment.id,
             author: comment.author,
-            authorAvatar: "/placeholder.svg?height=40&width=40",
             content: comment.content,
             date: new Date(comment.created_at).toLocaleDateString(),
             likes: comment.likes || 0,

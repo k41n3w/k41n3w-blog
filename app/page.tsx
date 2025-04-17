@@ -20,14 +20,14 @@ export default async function Home() {
     const { data, error: fetchError } = await supabase
       .from(TABLES.POSTS)
       .select(`
-        id, 
-        title, 
-        excerpt, 
-        created_at,
-        views,
-        likes,
-        author_id
-      `)
+       id, 
+       title, 
+       excerpt, 
+       created_at,
+       views,
+       likes,
+       author_id
+     `)
       .eq("status", "Published")
       .order("created_at", { ascending: false })
       .limit(6)
@@ -46,17 +46,12 @@ export default async function Home() {
 
   // Transformar os dados para o formato esperado pelo componente
   const formattedPosts = posts.map((post) => {
-    // Usar uma exibição simples para o autor
-    const authorId = post?.author_id || "unknown"
-    // Extrair um nome simples do UUID se possível
-    const authorName = authorId.split("-")[0] || "Author"
-
     return {
       id: post.id,
       title: post.title,
       excerpt: post.excerpt || "No excerpt available",
       date: new Date(post.created_at).toLocaleDateString(),
-      author: authorName,
+      author: "Caio Ramos", // Nome fixo do autor
       likes: post.likes || 0,
       comments: 0, // Buscaremos os comentários separadamente depois
     }

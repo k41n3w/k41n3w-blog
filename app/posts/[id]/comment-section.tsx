@@ -5,7 +5,6 @@ import type React from "react"
 import { useState } from "react"
 import { Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Textarea } from "@/components/ui/textarea"
 import { createComment, incrementCommentLikes } from "@/lib/supabase/actions"
 import { useToast } from "@/hooks/use-toast"
@@ -13,7 +12,6 @@ import { useToast } from "@/hooks/use-toast"
 interface Comment {
   id: string
   author: string
-  authorAvatar: string
   content: string
   date: string
   likes: number
@@ -166,15 +164,9 @@ export default function CommentSection({ postId, comments: initialComments }: Co
         ) : (
           comments.map((comment) => (
             <div key={comment.id} className="bg-gray-900 rounded-lg p-4 border border-gray-800">
-              <div className="flex items-center space-x-4 mb-2">
-                <Avatar>
-                  <AvatarImage src={comment.authorAvatar || "/placeholder.svg"} alt={comment.author} />
-                  <AvatarFallback>{comment.author.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-medium">{comment.author}</p>
-                  <p className="text-sm text-gray-400">{comment.date}</p>
-                </div>
+              <div className="mb-2">
+                <p className="font-medium">{comment.author}</p>
+                <p className="text-sm text-gray-400">{comment.date}</p>
               </div>
               <p className="mb-4">{comment.content}</p>
               <button
