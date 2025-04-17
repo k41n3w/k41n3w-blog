@@ -46,7 +46,7 @@ export default async function Home() {
   // Transformar os dados para o formato esperado pelo componente
   const formattedPosts = posts.map((post) => {
     // Usar uma exibição simples para o autor
-    const authorId = post.author_id || "unknown"
+    const authorId = post?.author_id || "unknown"
     // Extrair um nome simples do UUID se possível
     const authorName = authorId.split("-")[0] || "Author"
 
@@ -77,7 +77,7 @@ export default async function Home() {
             {/* Debug info */}
             <p className="text-xs text-gray-600 mt-2">
               Debug: {posts ? `${posts.length} posts retrieved` : "No posts data"}
-              {error ? ` | Error: ${error.message}` : ""}
+              {error ? ` | Error: ${error.message || "Unknown error"}` : ""}
             </p>
           </div>
         ) : (
