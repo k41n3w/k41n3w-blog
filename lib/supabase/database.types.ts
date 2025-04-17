@@ -15,6 +15,7 @@ export interface Database {
           published_at: string | null
           status: string
           views: number
+          likes: number | null
         }
         Insert: {
           id?: string
@@ -27,6 +28,7 @@ export interface Database {
           published_at?: string | null
           status?: string
           views?: number
+          likes?: number | null
         }
         Update: {
           id?: string
@@ -39,6 +41,7 @@ export interface Database {
           published_at?: string | null
           status?: string
           views?: number
+          likes?: number | null
         }
       }
       comments: {
@@ -118,6 +121,12 @@ export interface Database {
       increment_comment_likes: {
         Args: {
           comment_id: string
+        }
+        Returns: undefined
+      }
+      increment_post_likes: {
+        Args: {
+          post_id: string
         }
         Returns: undefined
       }

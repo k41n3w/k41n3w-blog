@@ -1,9 +1,24 @@
-"use client"
-
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import { createBrowserClient } from "@supabase/ssr"
 import type { Database } from "./database.types"
 
-// Create a single instance of the Supabase client for client components
-export const createClient = () => {
-  return createClientComponentClient<Database>()
+// Usar uma variável global para armazenar a instância do cliente
+// Isso evita a criação de múltiplas instâncias
+const globalForSupabase = globalThis as unknown as {
+  supabase: ReturnType<typeof createBrowserClient<Database>> | undefined
+}
+
+export function createClient() {
+  if (globalForSupabase.supabase) {
+    return globalForSupabase.supabase
+  }
+
+  globalForSupabase.supabase = createBrowserClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      debug: true,
+    },
+  )
+
+  return globalForSupabase.supabase
 }

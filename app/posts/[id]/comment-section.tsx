@@ -30,6 +30,7 @@ export default function CommentSection({ postId, comments: initialComments }: Co
   const [email, setEmail] = useState("")
   const [commentText, setCommentText] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [likedComments, setLikedComments] = useState<Record<string, boolean>>({})
   const { toast } = useToast()
 
   const handleAddComment = async (e: React.FormEvent) => {
@@ -72,13 +73,37 @@ export default function CommentSection({ postId, comments: initialComments }: Co
   }
 
   const handleCommentLike = async (commentId: string) => {
+    // Prevent multiple likes
+    if (likedComments[commentId]) return
+
     // Optimistically update UI
     setComments(
       comments.map((comment) => (comment.id === commentId ? { ...comment, likes: comment.likes + 1 } : comment)),
     )
 
-    // Update in database
-    await incrementCommentLikes(commentId)
+    // Mark comment as liked
+    setLikedComments((prev) => ({ ...prev, [commentId]: true }))
+
+    try {
+      // Update in database
+      const result = await incrementCommentLikes(commentId)
+
+      if (result.error) {
+        console.error("Erro ao curtir comentário:", result.error)
+        // Reverter o estado em caso de erro
+        setComments(
+          comments.map((comment) => (comment.id === commentId ? { ...comment, likes: comment.likes } : comment)),
+        )
+        setLikedComments((prev) => ({ ...prev, [commentId]: false }))
+      }
+    } catch (error) {
+      console.error("Exceção ao curtir comentário:", error)
+      // Reverter o estado em caso de erro
+      setComments(
+        comments.map((comment) => (comment.id === commentId ? { ...comment, likes: comment.likes } : comment)),
+      )
+      setLikedComments((prev) => ({ ...prev, [commentId]: false }))
+    }
   }
 
   return (
@@ -155,8 +180,9 @@ export default function CommentSection({ postId, comments: initialComments }: Co
               <button
                 onClick={() => handleCommentLike(comment.id)}
                 className="flex items-center space-x-2 text-gray-400 hover:text-red-500"
+                disabled={likedComments[comment.id]}
               >
-                <Heart className="h-5 w-5" />
+                <Heart className={`h-5 w-5 ${likedComments[comment.id] ? "fill-red-500 text-red-500" : ""}`} />
                 <span>{comment.likes}</span>
               </button>
             </div>

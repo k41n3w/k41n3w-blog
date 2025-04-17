@@ -1,16 +1,31 @@
 "use server"
 
-import { createServerActionClient } from "@supabase/auth-helpers-nextjs"
+import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
 import { TABLES } from "./config"
 import type { Database } from "./database.types"
 
 // Create a Supabase client for server actions
 const createClient = () => {
   const cookieStore = cookies()
-  return createServerActionClient<Database>({ cookies: () => cookieStore })
+  return createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name) {
+          return cookieStore.get(name)?.value
+        },
+        set(name, value, options) {
+          cookieStore.set({ name, value, ...options })
+        },
+        remove(name, options) {
+          cookieStore.set({ name, value: "", ...options })
+        },
+      },
+    },
+  )
 }
 
 // Authentication actions
@@ -19,36 +34,69 @@ export async function signIn(formData: FormData) {
   const email = formData.get("email") as string
   const password = formData.get("password") as string
 
-  const { error } = await supabase.auth.signInWithPassword({
+  console.log("Tentando login com:", email)
+
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   })
 
   if (error) {
-    return { error: error.message }
+    console.error("Login error:", error.message)
+    return { error: error.message, success: false }
   }
 
-  revalidatePath("/")
-  redirect("/admin/dashboard")
+  // Ensure we have a user before considering it a success
+  if (data?.user) {
+    console.log("Login bem-sucedido para:", data.user.email)
+    console.log("Session:", !!data.session)
+
+    // Revalidate paths
+    revalidatePath("/admin/dashboard")
+
+    // Return success and the URL to redirect to
+    return {
+      success: true,
+      redirectUrl: "/admin/dashboard",
+      user: {
+        id: data.user.id,
+        email: data.user.email,
+      },
+    }
+  }
+
+  return { success: false, error: "Login falhou" }
 }
 
 export async function signOut() {
   const supabase = createClient()
   await supabase.auth.signOut()
   revalidatePath("/")
-  redirect("/")
+  // Return the URL to redirect to instead of redirecting
+  return { success: true, redirectUrl: "/" }
 }
 
 // Post actions
 export async function createPost(formData: FormData) {
+  console.log("Iniciando createPost")
   const supabase = createClient()
 
   // Get the current user
   const {
     data: { user },
+    error: userError,
   } = await supabase.auth.getUser()
+
+  console.log("Usuário atual:", user?.email)
+
+  if (userError) {
+    console.error("Erro ao obter usuário:", userError)
+    return { error: "Erro ao obter usuário: " + userError.message }
+  }
+
   if (!user) {
-    return { error: "Not authenticated" }
+    console.error("Usuário não autenticado")
+    return { error: "Não autenticado" }
   }
 
   const title = formData.get("title") as string
@@ -56,12 +104,17 @@ export async function createPost(formData: FormData) {
   const excerpt = formData.get("excerpt") as string
   const status = formData.get("status") as string
   const tagsInput = formData.get("tags") as string
+
+  console.log("Dados do formulário:", { title, excerpt, status, tagsLength: tagsInput?.length || 0 })
+  console.log("Conteúdo (primeiros 100 caracteres):", content?.substring(0, 100))
+
   const tags = tagsInput
     .split(",")
     .map((tag) => tag.trim())
     .filter(Boolean)
 
   try {
+    console.log("Inserindo post no banco de dados")
     // Insert the post
     const { data: post, error: postError } = await supabase
       .from(TABLES.POSTS)
@@ -76,20 +129,39 @@ export async function createPost(formData: FormData) {
       .select()
       .single()
 
-    if (postError) throw postError
+    if (postError) {
+      console.error("Erro ao inserir post:", postError)
+      throw postError
+    }
+
+    console.log("Post inserido com sucesso:", post.id)
 
     // Handle tags
     if (tags.length > 0) {
+      console.log("Processando tags:", tags)
       // First, ensure all tags exist
       for (const tagName of tags) {
         if (!tagName) continue
 
         // Check if tag exists
-        const { data: existingTag } = await supabase.from(TABLES.TAGS).select("id").eq("name", tagName).single()
+        const { data: existingTag, error: tagCheckError } = await supabase
+          .from(TABLES.TAGS)
+          .select("id")
+          .eq("name", tagName)
+          .single()
+
+        if (tagCheckError && tagCheckError.code !== "PGRST116") {
+          // PGRST116 é o código para "não encontrado"
+          console.error("Erro ao verificar tag:", tagCheckError)
+        }
 
         if (!existingTag) {
+          console.log("Criando nova tag:", tagName)
           // Create new tag
-          await supabase.from(TABLES.TAGS).insert({ name: tagName })
+          const { error: tagCreateError } = await supabase.from(TABLES.TAGS).insert({ name: tagName })
+          if (tagCreateError) {
+            console.error("Erro ao criar tag:", tagCreateError)
+          }
         }
       }
 
@@ -97,22 +169,38 @@ export async function createPost(formData: FormData) {
       for (const tagName of tags) {
         if (!tagName) continue
 
-        const { data: tag } = await supabase.from(TABLES.TAGS).select("id").eq("name", tagName).single()
+        const { data: tag, error: tagFetchError } = await supabase
+          .from(TABLES.TAGS)
+          .select("id")
+          .eq("name", tagName)
+          .single()
+
+        if (tagFetchError) {
+          console.error("Erro ao buscar tag:", tagFetchError)
+          continue
+        }
 
         if (tag) {
-          await supabase.from(TABLES.POST_TAGS).insert({
+          console.log("Vinculando tag ao post:", tagName)
+          const { error: linkError } = await supabase.from(TABLES.POST_TAGS).insert({
             post_id: post.id,
             tag_id: tag.id,
           })
+
+          if (linkError) {
+            console.error("Erro ao vincular tag ao post:", linkError)
+          }
         }
       }
     }
 
+    console.log("Post criado com sucesso, revalidando caminhos")
     revalidatePath("/admin/dashboard")
     revalidatePath("/")
     return { success: true, id: post.id }
   } catch (error: any) {
-    return { error: error.message || "Failed to create post" }
+    console.error("Erro ao criar post:", error)
+    return { error: error.message || "Falha ao criar post" }
   }
 }
 
@@ -188,18 +276,44 @@ export async function updatePost(postId: string, formData: FormData) {
 }
 
 export async function deletePost(postId: string) {
+  console.log("Iniciando deletePost para ID:", postId)
   const supabase = createClient()
 
   try {
+    // Primeiro, remover as associações de tags
+    console.log("Removendo associações de tags")
+    const { error: tagDeleteError } = await supabase.from(TABLES.POST_TAGS).delete().eq("post_id", postId)
+
+    if (tagDeleteError) {
+      console.error("Erro ao remover associações de tags:", tagDeleteError)
+      // Continuar mesmo com erro, para tentar excluir o post
+    }
+
+    // Depois, remover os comentários
+    console.log("Removendo comentários")
+    const { error: commentDeleteError } = await supabase.from(TABLES.COMMENTS).delete().eq("post_id", postId)
+
+    if (commentDeleteError) {
+      console.error("Erro ao remover comentários:", commentDeleteError)
+      // Continuar mesmo com erro, para tentar excluir o post
+    }
+
+    // Finalmente, excluir o post
+    console.log("Excluindo o post")
     const { error } = await supabase.from(TABLES.POSTS).delete().eq("id", postId)
 
-    if (error) throw error
+    if (error) {
+      console.error("Erro ao excluir post:", error)
+      throw error
+    }
 
+    console.log("Post excluído com sucesso")
     revalidatePath("/admin/dashboard")
     revalidatePath("/")
     return { success: true }
   } catch (error: any) {
-    return { error: error.message || "Failed to delete post" }
+    console.error("Exceção ao excluir post:", error)
+    return { error: error.message || "Falha ao excluir post" }
   }
 }
 

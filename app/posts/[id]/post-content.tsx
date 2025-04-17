@@ -21,16 +21,34 @@ interface PostContentProps {
 
 export default function PostContent({ post }: PostContentProps) {
   const [liked, setLiked] = useState(false)
-  const [likeCount, setLikeCount] = useState(post.likes)
+  const [likeCount, setLikeCount] = useState(post.likes || 0)
+  const [isLiking, setIsLiking] = useState(false)
 
   const handleLike = async () => {
-    if (liked) return // Prevent multiple likes
+    if (liked || isLiking) return // Prevent multiple likes
 
+    setIsLiking(true)
     setLiked(true)
     setLikeCount(likeCount + 1)
 
-    // Update like count in database
-    await incrementPostLikes(post.id)
+    try {
+      // Update like count in database
+      const result = await incrementPostLikes(post.id)
+
+      if (result.error) {
+        console.error("Erro ao curtir post:", result.error)
+        // Reverter o estado em caso de erro
+        setLiked(false)
+        setLikeCount(likeCount)
+      }
+    } catch (error) {
+      console.error("Exceção ao curtir post:", error)
+      // Reverter o estado em caso de erro
+      setLiked(false)
+      setLikeCount(likeCount)
+    } finally {
+      setIsLiking(false)
+    }
   }
 
   return (
@@ -54,7 +72,11 @@ export default function PostContent({ post }: PostContentProps) {
       />
 
       <div className="flex items-center space-x-6 mb-8">
-        <button onClick={handleLike} className="flex items-center space-x-2 text-gray-400 hover:text-red-500">
+        <button
+          onClick={handleLike}
+          className="flex items-center space-x-2 text-gray-400 hover:text-red-500"
+          disabled={liked || isLiking}
+        >
           <Heart className={`h-6 w-6 ${liked ? "fill-red-500 text-red-500" : ""}`} />
           <span>{likeCount}</span>
         </button>
