@@ -3,13 +3,11 @@ import type { Database } from "./database.types"
 
 // Usar uma variável global para armazenar a instância do cliente
 // Isso evita a criação de múltiplas instâncias
-const globalForSupabase = globalThis as unknown as {
-  supabase: ReturnType<typeof createBrowserClient<Database>> | undefined
-}
+let supabaseInstance: ReturnType<typeof createBrowserClient<Database>> | undefined = undefined
 
 export function createClient() {
-  if (globalForSupabase.supabase) {
-    return globalForSupabase.supabase
+  if (supabaseInstance) {
+    return supabaseInstance
   }
 
   // Verificar se as variáveis de ambiente estão definidas
@@ -23,7 +21,7 @@ export function createClient() {
 
   try {
     // Remova a opção 'cookies' para usar automaticamente document.cookie
-    globalForSupabase.supabase = createBrowserClient<Database>(
+    supabaseInstance = createBrowserClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
@@ -32,7 +30,7 @@ export function createClient() {
       },
     )
 
-    return globalForSupabase.supabase
+    return supabaseInstance
   } catch (error) {
     console.error("Erro ao criar cliente Supabase no navegador:", error)
     // Retornar um cliente mock para evitar erros de runtime

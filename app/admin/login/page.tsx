@@ -19,8 +19,10 @@ export default function AdminLogin() {
   const [isLoading, setIsLoading] = useState(false)
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   const [loginError, setLoginError] = useState<string | null>(null)
+  const [authCheckFailed, setAuthCheckFailed] = useState(false)
   const { toast } = useToast()
   const router = useRouter()
+  const [isRedirecting, setIsRedirecting] = useState(false)
 
   // Criar o cliente Supabase
   let supabase: ReturnType<typeof createClient>
@@ -33,20 +35,38 @@ export default function AdminLogin() {
 
   // Verificar se o usuário já está autenticado ao carregar a página
   useEffect(() => {
+    let authTimeout: NodeJS.Timeout | null = null
+
     async function checkAuth() {
       try {
         if (!supabase) {
           console.error("Cliente Supabase não inicializado")
           setIsCheckingAuth(false)
+          setAuthCheckFailed(true)
           return
         }
 
-        const { data } = await supabase.auth.getSession()
+        // Definir um timeout para evitar espera infinita
+        const timeoutPromise = new Promise<{ data: { session: null }; error: Error }>((_, reject) => {
+          authTimeout = setTimeout(() => {
+            reject(new Error("Timeout ao verificar autenticação"))
+          }, 5000) // 5 segundos de timeout
+        })
+
+        // Corrida entre a verificação de autenticação e o timeout
+        const { data } = await Promise.race([supabase.auth.getSession(), timeoutPromise])
+
+        // Limpar o timeout se a verificação de autenticação terminar antes
+        if (authTimeout) {
+          clearTimeout(authTimeout)
+          authTimeout = null
+        }
 
         console.log("Verificando sessão:", data.session ? "Encontrada" : "Não encontrada")
 
-        if (data.session) {
+        if (data.session && !isRedirecting) {
           console.log("Usuário já autenticado, redirecionando para o dashboard")
+          setIsRedirecting(true)
           router.push("/admin/dashboard")
         } else {
           setIsCheckingAuth(false)
@@ -54,31 +74,54 @@ export default function AdminLogin() {
       } catch (error) {
         console.error("Erro ao verificar autenticação:", error)
         setIsCheckingAuth(false)
+        setAuthCheckFailed(true)
       }
     }
 
     checkAuth()
+
+    return () => {
+      // Limpar o timeout se existir
+      if (authTimeout) {
+        clearTimeout(authTimeout)
+      }
+    }
   }, [router])
 
   // Adicionar um listener para mudanças de autenticação
   useEffect(() => {
     if (!supabase) return
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Evento de autenticação:", event)
+    let authListener: { data?: { subscription: { unsubscribe: () => void } } } = {}
 
-      if (event === "SIGNED_IN" && session) {
-        console.log("Usuário autenticado via listener, redirecionando...")
-        router.push("/admin/dashboard")
-      }
-    })
+    try {
+      authListener = supabase.auth.onAuthStateChange((event, session) => {
+        console.log("Evento de autenticação:", event)
+
+        if (event === "SIGNED_IN" && session && !isRedirecting) {
+          console.log("Usuário autenticado via listener, redirecionando...")
+          setIsRedirecting(true)
+
+          // Usar setTimeout para evitar múltiplos redirecionamentos
+          setTimeout(() => {
+            router.push("/admin/dashboard")
+          }, 100)
+        }
+      })
+    } catch (error) {
+      console.error("Erro ao configurar listener de autenticação:", error)
+    }
 
     return () => {
-      if (authListener?.subscription) {
-        authListener.subscription.unsubscribe()
+      if (authListener?.data?.subscription) {
+        try {
+          authListener.data.subscription.unsubscribe()
+        } catch (error) {
+          console.error("Erro ao cancelar listener de autenticação:", error)
+        }
       }
     }
-  }, [router])
+  }, [router, isRedirecting])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -117,8 +160,16 @@ export default function AdminLogin() {
           description: "Redirecionando para o dashboard...",
         })
 
-        // Redirecionar para o dashboard
-        router.push("/admin/dashboard")
+        // Evitar redirecionamentos múltiplos
+        if (!isRedirecting) {
+          setIsRedirecting(true)
+
+          // Usar setTimeout para evitar múltiplos redirecionamentos
+          setTimeout(() => {
+            // Redirecionar para o dashboard usando window.location para um redirecionamento mais forte
+            window.location.href = "/admin/dashboard"
+          }, 100)
+        }
       } else {
         setLoginError("Não foi possível autenticar. Tente novamente.")
         toast({
@@ -147,6 +198,33 @@ export default function AdminLogin() {
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-t-red-500 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p>Verificando autenticação...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Se houver falha na verificação de autenticação, mostrar mensagem de erro com link para limpar sessão
+  if (authCheckFailed) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
+        <div className="max-w-md text-center">
+          <h1 className="text-2xl font-bold text-red-500 mb-4">Erro de Autenticação</h1>
+          <p className="text-gray-400 mb-6">
+            Ocorreu um erro ao verificar sua autenticação. Isso pode ser causado por um problema com os cookies ou
+            sessão.
+          </p>
+          <div className="space-y-4">
+            <a href="/clear-session" className="block">
+              <button className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">
+                Limpar Dados de Sessão
+              </button>
+            </a>
+            <a href="/" className="block">
+              <button className="w-full border border-red-600 text-red-600 hover:bg-red-900/20 py-2 px-4 rounded">
+                Voltar para Home
+              </button>
+            </a>
+          </div>
         </div>
       </div>
     )
@@ -209,10 +287,20 @@ export default function AdminLogin() {
                   className="bg-gray-800 border-gray-700"
                 />
               </div>
+
+              <div className="pt-2">
+                <Link href="/clear-session" className="text-sm text-red-400 hover:text-red-300">
+                  Problemas para entrar? Limpar dados de sessão
+                </Link>
+              </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white" disabled={isLoading}>
-                {isLoading ? "Entrando..." : "Entrar"}
+              <Button
+                type="submit"
+                className="w-full bg-red-600 hover:bg-red-700 text-white"
+                disabled={isLoading || isRedirecting}
+              >
+                {isLoading ? "Entrando..." : isRedirecting ? "Redirecionando..." : "Entrar"}
               </Button>
             </CardFooter>
           </form>
