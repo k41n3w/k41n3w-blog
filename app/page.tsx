@@ -7,7 +7,8 @@ import { TABLES } from "@/lib/supabase/config"
 import MatrixAnimation from "@/components/matrix-animation"
 import Footer from "@/components/layout/footer"
 
-export const revalidate = 60 // Revalidate this page every 60 seconds
+// Atualizar a configuração de revalidação na página inicial
+export const revalidate = 3600 // Revalidar a cada hora (3600 segundos)
 
 export default async function Home() {
   const supabase = createClient()

@@ -67,7 +67,7 @@ export default function PostContent({ post }: PostContentProps) {
       </div>
 
       <div
-        className="prose prose-invert prose-red max-w-none mb-8"
+        className="prose prose-invert prose-red max-w-none mb-8 text-justify"
         dangerouslySetInnerHTML={{ __html: post.content }}
       />
 

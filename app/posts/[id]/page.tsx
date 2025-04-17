@@ -9,7 +9,8 @@ import PostContent from "./post-content"
 import CommentSection from "./comment-section"
 import Footer from "@/components/layout/footer"
 
-export const revalidate = 60 // Revalidate this page every 60 seconds
+// Atualizar a configuração de revalidação na página de posts
+export const revalidate = 1800 // Revalidar a cada 30 minutos (1800 segundos)
 
 export default async function PostPage({ params }: { params: { id: string } }) {
   const supabase = createClient()

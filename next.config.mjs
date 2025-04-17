@@ -17,7 +17,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Adicionar headers para contornar problemas de CORS
+  // Adicionar headers para contornar problemas de CORS e configurar cache
   async headers() {
     return [
       {
@@ -38,8 +38,32 @@ const nextConfig = {
           },
         ],
       },
+      // Cache para arquivos estáticos
+      {
+        source: '/_next/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // Cache para imagens
+      {
+        source: '/images/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, s-maxage=604800',
+          },
+        ],
+      },
     ]
   },
+  // Configurações de otimização para produção
+  swcMinify: true,
+  // Configuração para compressão
+  compress: true,
 }
 
 export default nextConfig

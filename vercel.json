@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "routes": [
+    {
+      "src": "/images/(.*)",
+      "headers": { "cache-control": "public, max-age=86400, s-maxage=604800" },
+      "continue": true
+    },
+    {
+      "src": "/_next/static/(.*)",
+      "headers": { "cache-control": "public, max-age=31536000, immutable" },
+      "continue": true
+    },
+    {
+      "src": "/_next/data/(.*)",
+      "headers": { "cache-control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400" },
+      "continue": true
+    }
+  ]
+}
