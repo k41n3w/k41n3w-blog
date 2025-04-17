@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server"
 import { TABLES } from "@/lib/supabase/config"
 import PostContent from "./post-content"
 import CommentSection from "./comment-section"
+import Footer from "@/components/layout/footer"
 
 export const revalidate = 60 // Revalidate this page every 60 seconds
 
@@ -136,56 +137,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto py-8 bg-gray-900 border-t border-gray-800">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="text-xl font-bold text-red-500 mb-4">k41n3w</h3>
-              <p className="text-gray-400">A tech blog for Ruby on Rails developers and enthusiasts.</p>
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-red-500 mb-4">Links</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>
-                  <Link href="/" className="hover:text-red-400">
-                    Home
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/about" className="hover:text-red-400">
-                    About
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/archive" className="hover:text-red-400">
-                    Archive
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contact" className="hover:text-red-400">
-                    Contact
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-red-500 mb-4">Subscribe</h3>
-              <p className="text-gray-400 mb-4">Get the latest posts delivered to your inbox.</p>
-              <div className="flex">
-                <input
-                  type="email"
-                  placeholder="Your email"
-                  className="bg-gray-800 text-white px-4 py-2 rounded-l-md focus:outline-none focus:ring-1 focus:ring-red-500 border-0"
-                />
-                <Button className="bg-red-600 hover:bg-red-700 rounded-l-none">Subscribe</Button>
-              </div>
-            </div>
-          </div>
-          <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-500">
-            <p>&copy; {new Date().getFullYear()} k41n3w. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

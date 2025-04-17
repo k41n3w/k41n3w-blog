@@ -136,8 +136,3 @@ export interface Database {
     }
   }
 }
-
-export type Tables<
-  Public extends keyof Database = "public",
-  Table extends keyof Database[Public]["Tables"] = keyof Database[Public]["Tables"]
-> = Database[Public]["Tables"][Table]["Row"];
