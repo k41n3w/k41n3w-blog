@@ -8,6 +8,10 @@ import AnimatedTimeline from "@/components/about/animated-timeline"
 import AnimatedProfile from "@/components/about/animated-profile"
 import AnimatedTitle from "@/components/about/animated-title"
 
+// Configuração para geração estática com revalidação
+export const dynamic = "force-static"
+export const revalidate = 3600 // Revalidar a cada hora
+
 export default function AboutPage() {
   const experiences = [
     {
