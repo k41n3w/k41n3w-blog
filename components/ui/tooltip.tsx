@@ -5,6 +5,22 @@ import * as TooltipPrimitive from "@radix-ui/react-tooltip"
 
 import { cn } from "@/lib/utils"
 
+// Polyfill for useEffectEvent if it doesn't exist
+if (!("useEffectEvent" in React)) {
+  // @ts-ignore - Add the polyfill to React
+  React.useEffectEvent = function useEffectEvent(callback: Function) {
+    const ref = React.useRef(callback)
+
+    React.useLayoutEffect(() => {
+      ref.current = callback
+    })
+
+    return React.useCallback((...args: any[]) => {
+      return ref.current(...args)
+    }, [])
+  }
+}
+
 const TooltipProvider = TooltipPrimitive.Provider
 
 const TooltipTrigger = TooltipPrimitive.Trigger

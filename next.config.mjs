@@ -28,10 +28,17 @@ const nextConfig = {
   
   // Add webpack configuration to handle the problematic module
   webpack: (config, { isServer }) => {
-    // Add a fallback for the problematic module
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      '@radix-ui/react-use-effect-event': false,
+    // Provide a polyfill for React.useEffectEvent
+    config.plugins.push(
+      new config.webpack.ProvidePlugin({
+        React: ['react', ''],
+      })
+    );
+    
+    // Add a resolver for the problematic module
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@radix-ui/react-use-effect-event': require.resolve('./lib/radix-ui-polyfill.js'),
     };
     
     return config;
