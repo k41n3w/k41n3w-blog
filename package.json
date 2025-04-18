@@ -73,7 +73,7 @@
     "@tiptap/extension-image": "latest",
     "@tiptap/extension-code-block": "latest",
     "@tiptap/extension-placeholder": "latest",
-    "glob": "latest"
+    "webpack": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",

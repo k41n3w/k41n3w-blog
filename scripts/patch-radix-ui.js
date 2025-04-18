@@ -1,17 +1,24 @@
 const fs = require("fs")
 const path = require("path")
-const glob = require("glob")
 
-// Find all instances of the problematic file
-const findProblematicFiles = () => {
-  return glob.sync("node_modules/**/@radix-ui/react-use-effect-event/dist/index.{js,mjs}")
-}
+// Define the paths to the problematic files
+const filePaths = [
+  "node_modules/@radix-ui/react-use-effect-event/dist/index.js",
+  "node_modules/@radix-ui/react-use-effect-event/dist/index.mjs",
+  // For pnpm
+  "node_modules/.pnpm/@radix-ui+react-use-effect-event@0.0.0*/node_modules/@radix-ui/react-use-effect-event/dist/index.js",
+  "node_modules/.pnpm/@radix-ui+react-use-effect-event@0.0.0*/node_modules/@radix-ui/react-use-effect-event/dist/index.mjs",
+]
 
 // Patch a single file
 const patchFile = (filePath) => {
-  console.log(`Patching file: ${filePath}`)
-
   try {
+    if (!fs.existsSync(filePath)) {
+      console.log(`File does not exist: ${filePath}`)
+      return false
+    }
+
+    console.log(`Patching file: ${filePath}`)
     let content = fs.readFileSync(filePath, "utf8")
 
     // Replace the problematic code
@@ -35,24 +42,16 @@ const patchFile = (filePath) => {
 
 // Main function
 const main = () => {
-  console.log("🔍 Finding problematic Radix UI files...")
-  const files = findProblematicFiles()
-
-  if (files.length === 0) {
-    console.log("No problematic files found.")
-    return
-  }
-
-  console.log(`Found ${files.length} files to patch:`)
+  console.log("🔍 Patching Radix UI files...")
 
   let patchedCount = 0
-  for (const file of files) {
-    if (patchFile(file)) {
+  for (const filePath of filePaths) {
+    if (patchFile(filePath)) {
       patchedCount++
     }
   }
 
-  console.log(`\n📊 Summary: Patched ${patchedCount}/${files.length} files`)
+  console.log(`\n📊 Summary: Patched ${patchedCount} files`)
 }
 
 main()

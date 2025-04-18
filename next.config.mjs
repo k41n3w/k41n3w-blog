@@ -1,3 +1,5 @@
+import webpack from 'webpack';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Configurações para o Supabase
@@ -27,10 +29,10 @@ const nextConfig = {
   output: 'standalone', // Otimiza para implantação no Vercel
   
   // Add webpack configuration to handle the problematic module
-  webpack: (config, { isServer }) => {
+  webpack: (config) => {
     // Provide a polyfill for React.useEffectEvent
     config.plugins.push(
-      new config.webpack.ProvidePlugin({
+      new webpack.ProvidePlugin({
         React: ['react', ''],
       })
     );
