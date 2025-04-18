@@ -9,13 +9,23 @@ import PostContent from "./post-content"
 import CommentSection from "./comment-section"
 import Footer from "@/components/layout/footer"
 
-// Atualizar a configuração de revalidação na página de posts
-export const revalidate = 1800 // Revalidar a cada 30 minutos (1800 segundos)
+// Configuração para geração estática com revalidação
+export const dynamic = "force-static"
+export const revalidate = 1800 // Revalidar a cada 30 minutos
+
+// Função para gerar metadados estáticos
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const supabase = createClient()
+  const { data: post } = await supabase.from(TABLES.POSTS).select("title, excerpt").eq("id", params.id).single()
+
+  return {
+    title: post?.title || "Post",
+    description: post?.excerpt || "Ruby on Rails Tech Blog Post",
+  }
+}
 
 export default async function PostPage({ params }: { params: { id: string } }) {
   const supabase = createClient()
-
-  console.log("Fetching post with ID:", params.id)
 
   // Buscar post sem joins
   const { data: post, error: postError } = await supabase.from(TABLES.POSTS).select("*").eq("id", params.id).single()
@@ -30,56 +40,28 @@ export default async function PostPage({ params }: { params: { id: string } }) {
     notFound()
   }
 
-  console.log("Post fetched successfully:", post)
-
   // Buscar comentários separadamente
-  const { data: comments = [], error: commentsError } = await supabase
+  const { data: comments = [] } = await supabase
     .from(TABLES.COMMENTS)
     .select("*")
     .eq("post_id", params.id)
     .eq("status", "Approved")
 
-  if (commentsError) {
-    console.error("Error fetching comments:", commentsError)
-    // Continuar mesmo se a busca de comentários falhar
-  } else {
-    console.log("Comments fetched successfully:", comments)
-  }
-
   // Buscar tags separadamente
-  const { data: postTags = [], error: tagsError } = await supabase
-    .from(TABLES.POST_TAGS)
-    .select("tag_id")
-    .eq("post_id", params.id)
-
-  if (tagsError) {
-    console.error("Error fetching post tags:", tagsError)
-    // Continuar mesmo se a busca de tags falhar
-  } else {
-    console.log("Post tags fetched successfully:", postTags)
-  }
+  const { data: postTags = [] } = await supabase.from(TABLES.POST_TAGS).select("tag_id").eq("post_id", params.id)
 
   // Obter nomes das tags se tivermos IDs de tags
   let tags: string[] = []
   if (postTags.length > 0) {
     const tagIds = postTags.map((pt) => pt.tag_id)
-    const { data: tagData = [], error: tagNamesError } = await supabase
-      .from(TABLES.TAGS)
-      .select("name")
-      .in("id", tagIds)
+    const { data: tagData = [] } = await supabase.from(TABLES.TAGS).select("name").in("id", tagIds)
 
-    if (tagNamesError) {
-      console.error("Error fetching tag names:", tagNamesError)
-    } else {
-      tags = tagData.map((t) => t.name)
-      console.log("Tag names fetched successfully:", tags)
-    }
+    tags = tagData.map((t) => t.name)
   }
 
   // Tentar incrementar a contagem de visualizações, mas não falhar se não funcionar
   try {
     await supabase.rpc("increment_post_views", { post_id: params.id })
-    console.log("View count incremented successfully")
   } catch (error) {
     console.error("Error incrementing views:", error)
   }

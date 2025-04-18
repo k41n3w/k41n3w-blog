@@ -17,53 +17,14 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Adicionar headers para contornar problemas de CORS e configurar cache
-  async headers() {
-    return [
-      {
-        // Aplicar a todas as rotas
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Access-Control-Allow-Origin',
-            value: '*', // Permitir qualquer origem
-          },
-          {
-            key: 'Access-Control-Allow-Methods',
-            value: 'GET, POST, PUT, DELETE, OPTIONS',
-          },
-          {
-            key: 'Access-Control-Allow-Headers',
-            value: 'X-Requested-With, Content-Type, Authorization',
-          },
-        ],
-      },
-      // Cache para arquivos estáticos
-      {
-        source: '/_next/static/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-      // Cache para imagens
-      {
-        source: '/images/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=86400, s-maxage=604800',
-          },
-        ],
-      },
-    ]
-  },
   // Configurações de otimização para produção
   swcMinify: true,
   // Configuração para compressão
   compress: true,
+  // Configuração para cache
+  staticPageGenerationTimeout: 120, // Aumentar o timeout para geração de páginas estáticas
+  // Configuração para output
+  output: 'standalone', // Otimiza para implantação no Vercel
 }
 
 export default nextConfig

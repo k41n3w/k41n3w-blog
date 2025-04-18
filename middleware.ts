@@ -16,37 +16,43 @@ export function middleware(request: NextRequest) {
   // Adicionar cabeçalhos de cache com base no caminho
   const { pathname } = request.nextUrl
 
-  // Páginas estáticas (home, about, etc.) - cache por 1 dia com revalidação a cada hora
-  if (pathname === "/" || pathname === "/about" || pathname.startsWith("/archive")) {
-    response.headers.set("Cache-Control", "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400")
-  }
-
-  // Páginas de posts individuais - cache por 1 dia com revalidação a cada 30 minutos
-  else if (pathname.startsWith("/posts/")) {
-    response.headers.set("Cache-Control", "public, max-age=1800, s-maxage=86400, stale-while-revalidate=43200")
-  }
-
-  // Páginas administrativas - sem cache
-  else if (pathname.startsWith("/admin")) {
+  // Verificar se é uma requisição GET (apenas cache para GET)
+  if (request.method === "GET") {
+    // Páginas estáticas (home, about, etc.)
+    if (pathname === "/" || pathname === "/about") {
+      response.headers.set("Cache-Control", "public, max-age=3600, s-maxage=86400, stale-while-revalidate")
+    }
+    // Páginas de arquivo
+    else if (pathname.startsWith("/archive")) {
+      response.headers.set("Cache-Control", "public, max-age=1800, s-maxage=43200, stale-while-revalidate")
+    }
+    // Páginas de posts individuais
+    else if (pathname.startsWith("/posts/")) {
+      response.headers.set("Cache-Control", "public, max-age=1800, s-maxage=43200, stale-while-revalidate")
+    }
+    // Recursos estáticos
+    else if (pathname.match(/\.(css|js|jpg|jpeg|png|gif|ico|svg)$/)) {
+      response.headers.set("Cache-Control", "public, max-age=31536000, immutable")
+    }
+    // Outras páginas públicas
+    else if (!pathname.startsWith("/admin") && !pathname.startsWith("/api/")) {
+      response.headers.set("Cache-Control", "public, max-age=60, s-maxage=3600, stale-while-revalidate")
+    }
+    // Páginas administrativas e APIs - sem cache
+    else {
+      response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate")
+      response.headers.set("Pragma", "no-cache")
+      response.headers.set("Expires", "0")
+    }
+  } else {
+    // Para métodos não-GET, não cachear
     response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate")
-    response.headers.set("Pragma", "no-cache")
-    response.headers.set("Expires", "0")
-  }
-
-  // Recursos estáticos - cache por tempo mais longo (1 semana)
-  else if (pathname.match(/\.(css|js|jpg|jpeg|png|gif|ico|svg)$/)) {
-    response.headers.set("Cache-Control", "public, max-age=604800, s-maxage=604800, immutable")
-  }
-
-  // Outras páginas - cache moderado
-  else {
-    response.headers.set("Cache-Control", "public, max-age=60, s-maxage=3600, stale-while-revalidate=3600")
   }
 
   return response
 }
 
-// Configurar o middleware para ser executado em todas as rotas
+// Configurar o middleware para ser executado em todas as rotas exceto assets estáticos
 export const config = {
   matcher: [
     /*
@@ -55,8 +61,7 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public folder
-     * - api routes (que começam com /api/)
      */
-    "/((?!_next/static|_next/image|favicon.ico|public|api/).*)",
+    "/((?!_next/static|_next/image|favicon.ico|public).*)",
   ],
 }

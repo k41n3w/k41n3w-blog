@@ -7,8 +7,17 @@ import ClientArchive from "@/components/archive/client-archive"
 import RetryButton from "@/components/archive/retry-button"
 import Footer from "@/components/layout/footer"
 
-// Adicionar configuração de revalidação na página de arquivo
-export const revalidate = 3600 // Revalidar a cada hora (3600 segundos)
+// Configuração para geração estática com revalidação
+export const dynamic = "force-static"
+export const revalidate = 3600 // Revalidar a cada hora
+
+// Função para gerar metadados estáticos
+export async function generateMetadata() {
+  return {
+    title: "Archive - Ruby on Rails Tech Blog",
+    description: "Browse all posts from the Ruby on Rails Tech Blog",
+  }
+}
 
 export default async function ArchivePage() {
   const supabase = createClient()

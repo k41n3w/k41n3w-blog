@@ -7,8 +7,17 @@ import { TABLES } from "@/lib/supabase/config"
 import MatrixAnimation from "@/components/matrix-animation"
 import Footer from "@/components/layout/footer"
 
-// Atualizar a configuração de revalidação na página inicial
-export const revalidate = 3600 // Revalidar a cada hora (3600 segundos)
+// Configuração para geração estática com revalidação
+export const dynamic = "force-static"
+export const revalidate = 3600 // Revalidar a cada hora
+
+// Função para gerar metadados estáticos
+export async function generateMetadata() {
+  return {
+    title: "Ruby on Rails Tech Blog",
+    description: "Insights from a Rails Tech Lead",
+  }
+}
 
 export default async function Home() {
   const supabase = createClient()
@@ -38,7 +47,6 @@ export default async function Home() {
       error = fetchError
     } else {
       posts = data || []
-      console.log("Posts fetched successfully:", posts)
     }
   } catch (e) {
     console.error("Exception fetching posts:", e)
