@@ -61,6 +61,7 @@
     "@tiptap/pm": "latest",
     "@tiptap/core": "latest",
     "@supabase/supabase-js": "latest",
+    "@emotion/is-prop-valid": "latest",
     "@tiptap/react": "latest",
     "@tiptap/starter-kit": "latest",
     "@tiptap/extension-heading": "latest",
@@ -68,7 +69,8 @@
     "@tiptap/extension-image": "latest",
     "@tiptap/extension-code-block": "latest",
     "@tiptap/extension-placeholder": "latest",
-    "@supabase/ssr": "latest"
+    "@supabase/ssr": "latest",
+    "framer-motion": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",
