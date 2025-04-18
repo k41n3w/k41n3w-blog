@@ -1,0 +1,13 @@
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 1234567..abcdefg 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -1,7 +1,7 @@
+ import * as React from 'react';
+ 
+ // Use our own implementation of useEffectEvent as a fallback
+-const useEffectEvent = React.useEffectEvent || function useEffectEvent(callback) {
++const useEffectEvent = function useEffectEvent(callback) {
+   const ref = React.useRef(callback);
+   React.useLayoutEffect(() => {
+     ref.current = callback;
