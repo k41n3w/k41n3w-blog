@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Filter, SortAsc, SortDesc, ThumbsUp, Eye } from "lucide-react"
 import {
@@ -12,6 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
+// Import our custom useEffectEvent instead of React's
+import { useEffectEvent } from "@/hooks/use-effect-event"
 
 interface PostsFilterProps {
   tags: { id: string; name: string }[]
@@ -26,8 +28,8 @@ export default function PostsFilter({ tags, selectedTag, currentSort }: PostsFil
   const [sort, setSort] = useState(currentSort)
   const [isInitialized, setIsInitialized] = useState(false)
 
-  // Função para atualizar a URL quando os filtros mudarem
-  const updateUrl = useCallback(() => {
+  // Use our custom useEffectEvent instead of directly importing from React
+  const updateUrl = useEffectEvent(() => {
     const params = new URLSearchParams(searchParams.toString())
 
     if (tag) {
@@ -51,7 +53,7 @@ export default function PostsFilter({ tags, selectedTag, currentSort }: PostsFil
     if (window.location.pathname + window.location.search !== newUrl) {
       router.push(newUrl)
     }
-  }, [tag, sort, router, searchParams])
+  })
 
   // Inicializar o estado com os valores dos props
   useEffect(() => {
