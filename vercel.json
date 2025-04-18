@@ -1,51 +1,60 @@
 {
   "version": 2,
-  "cacheControl": {
-    "default": {
-      "maxAge": 60,
-      "staleWhileRevalidate": 3600,
-      "sMaxAge": 3600
-    },
-    "byPath": {
-      "/": {
-        "maxAge": 3600,
-        "staleWhileRevalidate": 86400,
-        "sMaxAge": 86400
-      },
-      "/about": {
-        "maxAge": 3600,
-        "staleWhileRevalidate": 86400,
-        "sMaxAge": 86400
-      },
-      "/archive": {
-        "maxAge": 1800,
-        "staleWhileRevalidate": 43200,
-        "sMaxAge": 43200
-      },
-      "/posts/**": {
-        "maxAge": 1800,
-        "staleWhileRevalidate": 43200,
-        "sMaxAge": 43200
-      },
-      "/_next/static/**": {
-        "maxAge": 31536000,
-        "immutable": true
-      },
-      "/images/**": {
-        "maxAge": 86400,
-        "sMaxAge": 604800
-      },
-      "/admin/**": {
-        "maxAge": 0,
-        "noStore": true
-      },
-      "/api/**": {
-        "maxAge": 0,
-        "noStore": true
-      }
-    }
-  },
   "headers": [
+    {
+      "source": "/",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
+      "source": "/about",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
+      "source": "/archive",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=1800, s-maxage=43200, stale-while-revalidate=43200"
+        }
+      ]
+    },
+    {
+      "source": "/posts/:id*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=1800, s-maxage=43200, stale-while-revalidate=43200"
+        }
+      ]
+    },
+    {
+      "source": "/_next/static/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/images/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, s-maxage=604800"
+        }
+      ]
+    },
     {
       "source": "/(.*)",
       "headers": [
