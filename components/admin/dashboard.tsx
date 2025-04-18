@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import type { User } from "@supabase/supabase-js"
-import { PlusCircle, LogOut } from "lucide-react"
+import { PlusCircle, LogOut, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
@@ -65,6 +65,12 @@ export default function AdminDashboard({ user, posts, pendingComments }: AdminDa
               <Button className="bg-red-600 hover:bg-red-700 flex items-center">
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Novo Post
+              </Button>
+            </Link>
+            <Link href="/admin/cache">
+              <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-900/20 flex items-center">
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Gerenciar Cache
               </Button>
             </Link>
             <Button

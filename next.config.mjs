@@ -1,5 +1,3 @@
-import webpack from 'webpack';
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Configurações para o Supabase
@@ -27,24 +25,6 @@ const nextConfig = {
   staticPageGenerationTimeout: 120, // Aumentar o timeout para geração de páginas estáticas
   // Configuração para output
   output: 'standalone', // Otimiza para implantação no Vercel
-  
-  // Add webpack configuration to handle the problematic module
-  webpack: (config) => {
-    // Provide a polyfill for React.useEffectEvent
-    config.plugins.push(
-      new webpack.ProvidePlugin({
-        React: ['react', ''],
-      })
-    );
-    
-    // Add a resolver for the problematic module
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@radix-ui/react-use-effect-event': require.resolve('./lib/radix-ui-polyfill.js'),
-    };
-    
-    return config;
-  },
 }
 
 export default nextConfig

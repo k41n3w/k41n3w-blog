@@ -344,19 +344,21 @@ export default function ClientArchive({ posts, allTags }: ClientArchiveProps) {
           </Button>
 
           {getPageNumbers().map((page, index) => {
-            if (page === "ellipsis-start") {
-              return <span key={`ellipsis-start-${index}`}>...</span>
-            }
-
-            if (page === "ellipsis-end") {
-              return <span key={`ellipsis-end-${index}`}>...</span>
+            if (page === "ellipsis-start" || page === "ellipsis-end") {
+              return (
+                <span key={`ellipsis-${index}`} className="px-3 py-2 text-gray-400">
+                  ...
+                </span>
+              )
             }
 
             return (
               <Button
-                key={page}
+                key={`page-${page}`}
                 variant={currentPage === page ? "default" : "outline"}
-                className={`border-gray-700 bg-gray-800 hover:bg-gray-700 ${currentPage === page ? "text-white" : ""}`}
+                className={
+                  currentPage === page ? "bg-red-600 hover:bg-red-700" : "border-gray-700 bg-gray-800 hover:bg-gray-700"
+                }
                 onClick={() => changePage(page as number)}
               >
                 {page}
