@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Heart, MessageSquare, Share2 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { incrementPostLikes } from "@/lib/supabase/actions"
@@ -25,20 +25,9 @@ export default function PostContent({ post }: PostContentProps) {
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(post.likes || 0)
   const [isLiking, setIsLiking] = useState(false)
-  const [processedContent, setProcessedContent] = useState("")
 
-  useEffect(() => {
-    // Adicionar log para depuração
-    console.log("Conteúdo original do post:", post.content.substring(0, 300) + "...")
-
-    // Processar o conteúdo
-    const processed = processPostContent(post.content)
-
-    // Adicionar log para depuração
-    console.log("Conteúdo processado:", processed.substring(0, 300) + "...")
-
-    setProcessedContent(processed)
-  }, [post.content])
+  // Processar o conteúdo do post
+  const processedContent = processPostContent(post.content)
 
   const handleLike = async () => {
     if (liked || isLiking) return // Prevent multiple likes

@@ -11,9 +11,6 @@ export const GiphyNode = Node.create({
 
   addAttributes() {
     return {
-      src: {
-        default: null,
-      },
       giphyId: {
         default: null,
       },
@@ -23,7 +20,14 @@ export const GiphyNode = Node.create({
   parseHTML() {
     return [
       {
-        tag: 'div[data-node-type="giphyEmbed"]',
+        tag: "div.giphy-embed-wrapper",
+        getAttrs: (node) => {
+          if (typeof node === "string" || !node) return {}
+          const element = node as HTMLElement
+          return {
+            giphyId: element.getAttribute("data-giphy-id"),
+          }
+        },
       },
     ]
   },
@@ -31,10 +35,29 @@ export const GiphyNode = Node.create({
   renderHTML({ HTMLAttributes }) {
     return [
       "div",
-      mergeAttributes(HTMLAttributes, {
-        "data-node-type": "giphyEmbed",
-        "data-giphy-id": HTMLAttributes.giphyId,
-      }),
+      mergeAttributes({ class: "giphy-embed-wrapper" }, HTMLAttributes, { "data-giphy-id": HTMLAttributes.giphyId }),
+      [
+        "img",
+        {
+          src: `https://media.giphy.com/media/${HTMLAttributes.giphyId}/giphy.gif`,
+          alt: "GIF do Giphy",
+          class: "max-w-full h-auto rounded-md",
+        },
+      ],
+      [
+        "div",
+        { class: "text-xs text-gray-500 text-center mt-1" },
+        [
+          "a",
+          {
+            href: `https://giphy.com/gifs/${HTMLAttributes.giphyId}`,
+            target: "_blank",
+            rel: "noopener noreferrer",
+            class: "hover:text-red-400",
+          },
+          "via GIPHY",
+        ],
+      ],
     ]
   },
 

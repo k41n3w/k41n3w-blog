@@ -151,7 +151,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
   const addGiphy = () => {
     if (!editor) return
 
-    const url = window.prompt("URL do GIF do Giphy")
+    const url = window.prompt("URL do GIF do Giphy (ex: https://giphy.com/gifs/ID)")
 
     if (url) {
       const giphyId = extractGiphyId(url)
@@ -161,7 +161,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
           .focus()
           .insertContent({
             type: "giphyEmbed",
-            attrs: { src: url, giphyId },
+            attrs: { giphyId },
           })
           .run()
       } else {
