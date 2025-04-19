@@ -18,7 +18,7 @@ export function middleware(request: NextRequest) {
 
   // Verificar se é uma requisição GET (apenas cache para GET)
   if (request.method === "GET") {
-    // Image proxy - ensure strong caching
+    // Proxy de imagem - garantir cache forte
     if (pathname.startsWith("/api/image-proxy/")) {
       response.headers.set("Cache-Control", "public, max-age=31536000, s-maxage=31536000, immutable")
       response.headers.set("CDN-Cache-Control", "public, max-age=31536000, s-maxage=31536000, immutable")

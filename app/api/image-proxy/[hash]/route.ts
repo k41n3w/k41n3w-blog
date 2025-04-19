@@ -2,41 +2,41 @@ import { type NextRequest, NextResponse } from "next/server"
 
 export const runtime = "edge"
 
-// Configure revalidation time (1 year in seconds)
+// Configurar tempo de revalidação (1 ano em segundos)
 export const revalidate = 31536000
 
 export async function GET(request: NextRequest, { params }: { params: { hash: string } }) {
   try {
-    // Get the image URL from the query parameter
+    // Obter a URL da imagem do parâmetro de consulta
     const { searchParams } = new URL(request.url)
     const imageUrl = searchParams.get("url")
 
     if (!imageUrl) {
-      return new NextResponse("Missing image URL", { status: 400 })
+      return new NextResponse("URL da imagem ausente", { status: 400 })
     }
 
-    // Decode the URL if it's encoded
+    // Decodificar a URL se estiver codificada
     const decodedUrl = decodeURIComponent(imageUrl)
 
-    // Fetch the image
+    // Buscar a imagem
     const imageResponse = await fetch(decodedUrl, {
       headers: {
-        // Forward user agent to avoid being blocked by some services
+        // Encaminhar user agent para evitar ser bloqueado por alguns serviços
         "User-Agent": request.headers.get("user-agent") || "Mozilla/5.0",
       },
     })
 
     if (!imageResponse.ok) {
-      return new NextResponse(`Failed to fetch image: ${imageResponse.statusText}`, {
+      return new NextResponse(`Falha ao buscar imagem: ${imageResponse.statusText}`, {
         status: imageResponse.status,
       })
     }
 
-    // Get the image data
+    // Obter os dados da imagem
     const imageData = await imageResponse.arrayBuffer()
     const contentType = imageResponse.headers.get("content-type") || "image/jpeg"
 
-    // Return the image with caching headers
+    // Retornar a imagem com headers de cache
     return new NextResponse(imageData, {
       headers: {
         "Content-Type": contentType,
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest, { params }: { params: { hash: st
       },
     })
   } catch (error: any) {
-    console.error("Image proxy error:", error)
-    return new NextResponse(`Error processing image: ${error.message}`, { status: 500 })
+    console.error("Erro no proxy de imagem:", error)
+    return new NextResponse(`Erro ao processar imagem: ${error.message}`, { status: 500 })
   }
 }

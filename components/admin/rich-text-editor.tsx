@@ -69,6 +69,8 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run()
   }
 
+  // Atualizar a função addImage para usar o novo formato de URL com hash
+
   const addImage = () => {
     if (!editor) return
 
