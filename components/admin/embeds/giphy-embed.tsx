@@ -4,7 +4,7 @@ import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react"
 import { useState, useEffect } from "react"
 import { Loader2 } from "lucide-react"
 
-export default function GiphyEmbed({ node }: NodeViewProps) {
+export default function GiphyEmbed({ node, getPos, editor }: NodeViewProps) {
   const { giphyId, src } = node.attrs
   const [isLoading, setIsLoading] = useState(true)
   const [gifUrl, setGifUrl] = useState("")
@@ -47,7 +47,7 @@ export default function GiphyEmbed({ node }: NodeViewProps) {
   }
 
   return (
-    <NodeViewWrapper>
+    <NodeViewWrapper data-type="giphy-embed" data-giphy-id={giphyId}>
       <div className="my-4 flex justify-center">
         {isLoading ? (
           <div className="flex justify-center items-center p-8">

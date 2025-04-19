@@ -84,7 +84,7 @@ export default function GistEmbed({ node }: NodeViewProps) {
   }
 
   return (
-    <NodeViewWrapper>
+    <NodeViewWrapper data-type="gist-embed" data-gist-id={gistId} data-filename={filename || ""}>
       <div className="my-4 relative">
         {isLoading && (
           <div className="flex justify-center items-center p-8">

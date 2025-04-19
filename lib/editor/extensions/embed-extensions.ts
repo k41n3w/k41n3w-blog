@@ -33,7 +33,14 @@ export const GistNode = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ["div", mergeAttributes(HTMLAttributes, { "data-type": "gist-embed" })]
+    return [
+      "div",
+      mergeAttributes(HTMLAttributes, {
+        "data-type": "gist-embed",
+        "data-gist-id": HTMLAttributes.gistId,
+        "data-filename": HTMLAttributes.filename || "",
+      }),
+    ]
   },
 
   addNodeView() {
@@ -68,7 +75,13 @@ export const GiphyNode = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ["div", mergeAttributes(HTMLAttributes, { "data-type": "giphy-embed" })]
+    return [
+      "div",
+      mergeAttributes(HTMLAttributes, {
+        "data-type": "giphy-embed",
+        "data-giphy-id": HTMLAttributes.giphyId,
+      }),
+    ]
   },
 
   addNodeView() {
