@@ -1,11 +1,12 @@
-import { isGistUrl, extractGistId, isGiphyUrl, extractGiphyId } from "./embed-utils"
-
 /**
  * Processa o conteúdo do post para substituir URLs de imagens com nossas URLs de proxy em cache
- * e processar embeds especiais como Gists e GIFs do Giphy
+ * e processar embeds especiais como GIFs do Giphy
  */
 export function processPostContent(content: string): string {
   if (!content) return ""
+
+  // Adicionar log para depuração
+  console.log("Processando conteúdo:", content.substring(0, 300) + "...")
 
   // Substituir atributos src de imagem com nossa URL de proxy
   let processedContent = content.replace(/<img\s+[^>]*src="([^"]+)"[^>]*>/g, (match, src) => {
@@ -24,110 +25,63 @@ export function processPostContent(content: string): string {
     return match.replace(src, proxiedSrc)
   })
 
-  // Processar embeds do Giphy inseridos pelo editor
+  // Método 1: Procurar por divs com data-node-type="giphyEmbed"
   processedContent = processedContent.replace(
-    /<div data-type="giphy-embed"[^>]*data-giphy-id="([^"]+)"[^>]*>.*?<\/div>/g,
+    /<div[^>]*data-node-type="giphyEmbed"[^>]*data-giphy-id="([^"]+)"[^>]*>[\s\S]*?<\/div>/g,
     (match, giphyId) => {
-      if (giphyId) {
-        return `<div class="giphy-embed-container my-4 flex justify-center flex-col items-center">
-          <img src="https://media.giphy.com/media/${giphyId}/giphy.gif" alt="GIF" class="max-w-full h-auto rounded-md" />
-          <div class="text-xs text-gray-500 text-center mt-1">
-            <a href="https://giphy.com/gifs/${giphyId}" target="_blank" rel="noopener noreferrer" class="hover:text-red-400">via GIPHY</a>
-          </div>
-        </div>`
-      }
-      return match
+      console.log("Encontrado embed do Giphy (método 1):", giphyId)
+      return renderGiphyEmbed(giphyId)
     },
   )
 
-  // Processar links para Gists
+  // Método 2: Procurar por divs com data-type="giphy-embed"
   processedContent = processedContent.replace(
-    /<p>(?:<a[^>]*href="(https:\/\/gist\.github\.com\/[^"]+)"[^>]*>([^<]+)<\/a>)<\/p>/g,
-    (match, url, text) => {
-      if (isGistUrl(url)) {
-        const { gistId, filename } = extractGistId(url)
-        if (gistId) {
-          // Adicionar um ID único para o container do Gist
-          const gistContainerId = `gist-container-${gistId}`
+    /<div[^>]*data-type="giphy-embed"[^>]*data-giphy-id="([^"]+)"[^>]*>[\s\S]*?<\/div>/g,
+    (match, giphyId) => {
+      console.log("Encontrado embed do Giphy (método 2):", giphyId)
+      return renderGiphyEmbed(giphyId)
+    },
+  )
 
-          return `<div class="gist-embed-container my-4" id="${gistContainerId}">
-            <script src="https://gist.github.com/${gistId}.js${filename ? `?file=${encodeURIComponent(filename)}` : ""}"></script>
-            <noscript>
-              <a href="${url}" target="_blank" rel="noopener noreferrer">Ver Gist no GitHub</a>
-            </noscript>
-          </div>
-          <script>
-            (function() {
-              // Verificar se o script do Gist foi carregado corretamente
-              setTimeout(function() {
-                var container = document.getElementById('${gistContainerId}');
-                if (container && !container.querySelector('.gist')) {
-                  // Se não encontrar o elemento .gist, recarregar o script
-                  var script = document.createElement('script');
-                  script.src = 'https://gist.github.com/${gistId}.js${filename ? `?file=${encodeURIComponent(filename)}` : ""}';
-                  container.appendChild(script);
-                }
-              }, 1000);
-            })();
-          </script>`
-        }
+  // Método 3: Procurar por qualquer div que contenha giphy-embed e extrair o ID
+  processedContent = processedContent.replace(
+    /<div[^>]*class="[^"]*giphy-embed[^"]*"[^>]*>[\s\S]*?<\/div>/g,
+    (match) => {
+      // Tentar extrair o ID do Giphy do conteúdo
+      const giphyIdMatch = match.match(/giphy\.com\/media\/([^/]+)/)
+      if (giphyIdMatch && giphyIdMatch[1]) {
+        const giphyId = giphyIdMatch[1]
+        console.log("Encontrado embed do Giphy (método 3):", giphyId)
+        return renderGiphyEmbed(giphyId)
       }
       return match
     },
   )
 
-  // Processar links para GIFs do Giphy
+  // Método 4: Procurar por links do Giphy
   processedContent = processedContent.replace(
     /<p>(?:<a[^>]*href="(https:\/\/(?:media\.)?giphy\.com\/[^"]+)"[^>]*>([^<]+)<\/a>)<\/p>/g,
-    (match, url, text) => {
-      if (isGiphyUrl(url)) {
-        const giphyId = extractGiphyId(url)
-        if (giphyId) {
-          // Usar a URL direta da imagem em vez de iframe
-          return `<div class="giphy-embed-container my-4 flex justify-center flex-col items-center">
-            <img src="https://media.giphy.com/media/${giphyId}/giphy.gif" alt="GIF" class="max-w-full h-auto rounded-md" />
-            <div class="text-xs text-gray-500 text-center mt-1">
-              <a href="${url}" target="_blank" rel="noopener noreferrer" class="hover:text-red-400">via GIPHY</a>
-            </div>
-          </div>`
-        }
-      }
-      return match
-    },
-  )
-
-  // Processar embeds do Gist inseridos pelo editor
-  processedContent = processedContent.replace(
-    /<div data-type="gist-embed"[^>]*data-gist-id="([^"]+)"(?:[^>]*data-filename="([^"]+)")?[^>]*>.*?<\/div>/g,
-    (match, gistId, filename) => {
-      if (gistId) {
-        // Adicionar um ID único para o container do Gist
-        const gistContainerId = `gist-container-${gistId}`
-
-        return `<div class="gist-embed-container my-4" id="${gistContainerId}">
-          <script src="https://gist.github.com/${gistId}.js${filename ? `?file=${encodeURIComponent(filename)}` : ""}"></script>
-          <noscript>
-            <a href="https://gist.github.com/${gistId}" target="_blank" rel="noopener noreferrer">Ver Gist no GitHub</a>
-          </noscript>
-        </div>
-        <script>
-          (function() {
-            // Verificar se o script do Gist foi carregado corretamente
-            setTimeout(function() {
-              var container = document.getElementById('${gistContainerId}');
-              if (container && !container.querySelector('.gist')) {
-                // Se não encontrar o elemento .gist, recarregar o script
-                var script = document.createElement('script');
-                script.src = 'https://gist.github.com/${gistId}.js${filename ? `?file=${encodeURIComponent(filename)}` : ""}';
-                container.appendChild(script);
-              }
-            }, 1000);
-          })();
-        </script>`
+    (match, url) => {
+      // Extrair o ID do Giphy da URL
+      const giphyIdMatch = url.match(/giphy\.com\/(?:gifs\/|media\/)([^/-]+)/)
+      if (giphyIdMatch && giphyIdMatch[1]) {
+        const giphyId = giphyIdMatch[1].replace(/[^\w\d]/g, "")
+        console.log("Encontrado link do Giphy (método 4):", giphyId)
+        return renderGiphyEmbed(giphyId)
       }
       return match
     },
   )
 
   return processedContent
+}
+
+// Função auxiliar para renderizar o embed do Giphy
+function renderGiphyEmbed(giphyId: string): string {
+  return `<div class="giphy-embed-container my-4 flex justify-center flex-col items-center">
+    <img src="https://media.giphy.com/media/${giphyId}/giphy.gif" alt="GIF" class="max-w-full h-auto rounded-md" />
+    <div class="text-xs text-gray-500 text-center mt-1">
+      <a href="https://giphy.com/gifs/${giphyId}" target="_blank" rel="noopener noreferrer" class="hover:text-red-400">via GIPHY</a>
+    </div>
+  </div>`
 }

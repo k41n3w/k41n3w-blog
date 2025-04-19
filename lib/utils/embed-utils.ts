@@ -1,41 +1,4 @@
 /**
- * Extrai o ID do Gist a partir de uma URL do GitHub Gist
- */
-export function extractGistId(url: string): { gistId: string; filename: string | null } {
-  // Padrões de URL do Gist:
-  // https://gist.github.com/username/gistId
-  // https://gist.github.com/username/gistId#file-filename
-  // https://gist.github.com/gistId
-
-  let gistId = null
-  let filename = null
-
-  try {
-    const urlObj = new URL(url)
-
-    if (urlObj.hostname === "gist.github.com") {
-      const pathParts = urlObj.pathname.split("/").filter(Boolean)
-
-      // O último segmento do caminho é o ID do Gist
-      if (pathParts.length >= 2) {
-        gistId = pathParts[pathParts.length - 1]
-      } else if (pathParts.length === 1) {
-        gistId = pathParts[0]
-      }
-
-      // Verificar se há um fragmento para o nome do arquivo
-      if (urlObj.hash && urlObj.hash.startsWith("#file-")) {
-        filename = urlObj.hash.substring(6) // Remover '#file-'
-      }
-    }
-  } catch (e) {
-    console.error("Erro ao analisar URL do Gist:", e)
-  }
-
-  return { gistId: gistId || "", filename }
-}
-
-/**
  * Extrai o ID do Giphy a partir de uma URL do Giphy
  */
 export function extractGiphyId(url: string): string | null {
@@ -86,18 +49,6 @@ export function extractGiphyId(url: string): string | null {
   }
 
   return giphyId
-}
-
-/**
- * Verifica se uma URL é um link para um Gist
- */
-export function isGistUrl(url: string): boolean {
-  try {
-    const urlObj = new URL(url)
-    return urlObj.hostname === "gist.github.com"
-  } catch (e) {
-    return false
-  }
 }
 
 /**
