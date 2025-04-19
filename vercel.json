@@ -38,7 +38,7 @@
       ]
     },
     {
-      "source": "/api/image-proxy/:hash*",
+      "source": "/api/image-proxy",
       "headers": [
         {
           "key": "Cache-Control",

@@ -19,7 +19,14 @@ export function middleware(request: NextRequest) {
   // Verificar se é uma requisição GET (apenas cache para GET)
   if (request.method === "GET") {
     // Proxy de imagem - garantir cache forte
-    if (pathname.startsWith("/api/image-proxy/")) {
+    if (pathname === "/api/image-proxy") {
+      // Obter a URL da imagem para usar como parte da chave de cache
+      const url = request.nextUrl.searchParams.get("url") || ""
+
+      // Adicionar um header personalizado para ajudar o Vercel a diferenciar as requisições
+      response.headers.set("X-Image-URL", url)
+
+      // Definir headers de cache fortes
       response.headers.set("Cache-Control", "public, max-age=31536000, s-maxage=31536000, immutable")
       response.headers.set("CDN-Cache-Control", "public, max-age=31536000, s-maxage=31536000, immutable")
       response.headers.set("Vercel-CDN-Cache-Control", "public, max-age=31536000, s-maxage=31536000, immutable")
