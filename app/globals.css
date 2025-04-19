@@ -117,3 +117,41 @@ body {
 .prose-invert hr {
   @apply border-gray-700;
 }
+
+/* Estilos para embeds */
+.gist-embed-container {
+  @apply my-6 rounded-md overflow-hidden;
+}
+
+/* Corrigindo os estilos do Gist - separando as classes com prefixo ! */
+.gist-embed-container .gist {
+  background-color: #1f2937 !important; /* bg-gray-800 */
+}
+
+.gist-embed-container .gist .gist-file {
+  border: 1px solid #374151 !important; /* border-gray-700 */
+  border-radius: 0.375rem !important; /* rounded-md */
+}
+
+.gist-embed-container .gist .gist-data {
+  background-color: #1f2937 !important; /* bg-gray-800 */
+  border-bottom: 1px solid #374151 !important; /* border-gray-700 */
+}
+
+.gist-embed-container .gist .gist-meta {
+  background-color: #111827 !important; /* bg-gray-900 */
+  color: #9ca3af !important; /* text-gray-400 */
+  border-top: 1px solid #374151 !important; /* border-gray-700 */
+}
+
+.gist-embed-container .gist .gist-meta a {
+  color: #f87171 !important; /* text-red-400 */
+}
+
+.giphy-embed-container {
+  @apply my-6 flex justify-center;
+}
+
+.giphy-embed {
+  @apply rounded-md max-w-full;
+}

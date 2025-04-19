@@ -16,6 +16,8 @@ import TextStyle from "@tiptap/extension-text-style"
 import Color from "@tiptap/extension-color"
 import Blockquote from "@tiptap/extension-blockquote"
 import HorizontalRule from "@tiptap/extension-horizontal-rule"
+import { GistNode, GiphyNode } from "@/lib/editor/extensions/embed-extensions"
+import { extractGistId, extractGiphyId } from "@/lib/utils/embed-utils"
 import {
   Bold,
   Italic,
@@ -40,6 +42,8 @@ import {
   Eraser,
   Eye,
   Edit,
+  Github,
+  Smile,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip } from "./tooltip"
@@ -92,6 +96,8 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
         },
       }),
       HorizontalRule,
+      GistNode,
+      GiphyNode,
     ],
     content: value,
     onUpdate: ({ editor }) => {
@@ -141,6 +147,52 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
     if (url) {
       // Use the original URL when editing, it will be proxied when displayed
       editor.chain().focus().setImage({ src: url }).run()
+    }
+  }
+
+  const addGist = () => {
+    if (!editor) return
+
+    const url = window.prompt("URL do GitHub Gist")
+
+    if (url) {
+      const { gistId, filename } = extractGistId(url)
+      if (gistId) {
+        editor
+          .chain()
+          .focus()
+          .insertContent({
+            type: "gistEmbed",
+            attrs: { src: url, gistId, filename },
+          })
+          .run()
+      } else {
+        alert("URL do Gist inválida. Use o formato: https://gist.github.com/username/gistId")
+      }
+    }
+  }
+
+  const addGiphy = () => {
+    if (!editor) return
+
+    const url = window.prompt("URL do GIF do Giphy")
+
+    if (url) {
+      const giphyId = extractGiphyId(url)
+      if (giphyId) {
+        editor
+          .chain()
+          .focus()
+          .insertContent({
+            type: "giphyEmbed",
+            attrs: { src: url, giphyId },
+          })
+          .run()
+      } else {
+        alert(
+          "URL do Giphy inválida. Use o formato: https://giphy.com/gifs/ID ou https://media.giphy.com/media/ID/giphy.gif",
+        )
+      }
     }
   }
 
@@ -410,6 +462,19 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
               <Tooltip content={<p>Inserir imagem</p>}>
                 <Button type="button" size="sm" variant="ghost" className="h-8 px-2" onClick={addImage}>
                   <ImageIcon className="h-4 w-4" />
+                </Button>
+              </Tooltip>
+
+              {/* Novos botões para Gist e Giphy */}
+              <Tooltip content={<p>Inserir GitHub Gist</p>}>
+                <Button type="button" size="sm" variant="ghost" className="h-8 px-2" onClick={addGist}>
+                  <Github className="h-4 w-4" />
+                </Button>
+              </Tooltip>
+
+              <Tooltip content={<p>Inserir GIF do Giphy</p>}>
+                <Button type="button" size="sm" variant="ghost" className="h-8 px-2" onClick={addGiphy}>
+                  <Smile className="h-4 w-4" />
                 </Button>
               </Tooltip>
             </div>
