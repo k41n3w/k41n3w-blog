@@ -62,6 +62,11 @@
     "@tiptap/core": "latest",
     "@supabase/supabase-js": "latest",
     "@emotion/is-prop-valid": "latest",
+    "@remix-run/react": "latest",
+    "@sveltejs/kit": "latest",
+    "svelte": "latest",
+    "vue": "latest",
+    "vue-router": "latest",
     "@tiptap/react": "latest",
     "@tiptap/starter-kit": "latest",
     "@tiptap/extension-heading": "latest",
@@ -70,7 +75,8 @@
     "@tiptap/extension-code-block": "latest",
     "@tiptap/extension-placeholder": "latest",
     "@supabase/ssr": "latest",
-    "framer-motion": "latest"
+    "framer-motion": "latest",
+    "@vercel/analytics": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",
