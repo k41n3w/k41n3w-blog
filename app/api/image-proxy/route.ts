@@ -1,5 +1,4 @@
 import { type NextRequest, NextResponse } from "next/server"
-import sharp from "sharp"
 
 export const runtime = "edge"
 
@@ -11,8 +10,6 @@ export async function GET(request: NextRequest) {
     // Obter a URL da imagem do parâmetro de consulta
     const { searchParams } = new URL(request.url)
     const imageUrl = searchParams.get("url")
-    const width = searchParams.get("width") ? Number.parseInt(searchParams.get("width") || "0", 10) : undefined
-    const quality = searchParams.get("quality") ? Number.parseInt(searchParams.get("quality") || "80", 10) : 80
 
     if (!imageUrl) {
       return new NextResponse("URL da imagem ausente", { status: 400 })
@@ -20,10 +17,6 @@ export async function GET(request: NextRequest) {
 
     // Decodificar a URL se estiver codificada
     const decodedUrl = decodeURIComponent(imageUrl)
-
-    // Verificar se o navegador suporta WebP
-    const acceptHeader = request.headers.get("accept") || ""
-    const supportsWebp = acceptHeader.includes("image/webp")
 
     // Buscar a imagem
     const imageResponse = await fetch(decodedUrl, {
@@ -40,50 +33,17 @@ export async function GET(request: NextRequest) {
     }
 
     // Obter os dados da imagem
-    const imageBuffer = await imageResponse.arrayBuffer()
-
-    // Processar a imagem com sharp
-    let processedImageBuffer: Buffer
-    let contentType: string
-
-    try {
-      // Criar uma instância do sharp com o buffer da imagem
-      let sharpInstance = sharp(Buffer.from(imageBuffer))
-
-      // Redimensionar se necessário
-      if (width) {
-        sharpInstance = sharpInstance.resize(width)
-      }
-
-      // Converter para WebP se o navegador suportar
-      if (supportsWebp) {
-        processedImageBuffer = await sharpInstance.webp({ quality }).toBuffer()
-        contentType = "image/webp"
-      } else {
-        // Caso contrário, otimizar como JPEG
-        processedImageBuffer = await sharpInstance.jpeg({ quality }).toBuffer()
-        contentType = "image/jpeg"
-      }
-    } catch (error) {
-      console.error("Erro ao processar imagem com sharp:", error)
-      // Fallback: retornar a imagem original se houver erro no processamento
-      processedImageBuffer = Buffer.from(imageBuffer)
-      contentType = imageResponse.headers.get("content-type") || "image/jpeg"
-    }
-
-    // Gerar um ETag baseado no conteúdo da imagem para melhorar o cache
-    const etag = `"${Buffer.from(processedImageBuffer).toString("base64").substring(0, 16)}"`
+    const imageData = await imageResponse.arrayBuffer()
+    const contentType = imageResponse.headers.get("content-type") || "image/jpeg"
 
     // Retornar a imagem com headers de cache fortes
-    return new NextResponse(processedImageBuffer, {
+    return new NextResponse(imageData, {
       headers: {
         "Content-Type": contentType,
         "Cache-Control": "public, max-age=31536000, s-maxage=31536000, immutable",
         "CDN-Cache-Control": "public, max-age=31536000, s-maxage=31536000, immutable",
         "Vercel-CDN-Cache-Control": "public, max-age=31536000, s-maxage=31536000, immutable",
-        "Content-Length": processedImageBuffer.byteLength.toString(),
-        ETag: etag,
-        Vary: "Accept", // Importante para diferenciar entre clientes que suportam WebP e os que não suportam
+        "Content-Length": imageData.byteLength.toString(),
       },
     })
   } catch (error: any) {

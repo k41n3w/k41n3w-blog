@@ -20,23 +20,16 @@ export function middleware(request: NextRequest) {
   if (request.method === "GET") {
     // Proxy de imagem - garantir cache forte
     if (pathname === "/api/image-proxy") {
-      // Obter a URL da imagem e outros parâmetros para usar como parte da chave de cache
+      // Obter a URL da imagem para usar como parte da chave de cache
       const url = request.nextUrl.searchParams.get("url") || ""
-      const width = request.nextUrl.searchParams.get("width") || ""
-      const quality = request.nextUrl.searchParams.get("quality") || ""
 
-      // Adicionar headers personalizados para ajudar o Vercel a diferenciar as requisições
+      // Adicionar um header personalizado para ajudar o Vercel a diferenciar as requisições
       response.headers.set("X-Image-URL", url)
-      if (width) response.headers.set("X-Image-Width", width)
-      if (quality) response.headers.set("X-Image-Quality", quality)
 
       // Definir headers de cache fortes
       response.headers.set("Cache-Control", "public, max-age=31536000, s-maxage=31536000, immutable")
       response.headers.set("CDN-Cache-Control", "public, max-age=31536000, s-maxage=31536000, immutable")
       response.headers.set("Vercel-CDN-Cache-Control", "public, max-age=31536000, s-maxage=31536000, immutable")
-
-      // Adicionar Vary: Accept para diferenciar entre clientes que suportam WebP e os que não suportam
-      response.headers.set("Vary", "Accept")
     }
     // Páginas estáticas (home, about, etc.)
     else if (pathname === "/" || pathname === "/about") {
