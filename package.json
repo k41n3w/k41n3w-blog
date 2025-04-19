@@ -76,7 +76,8 @@
     "@tiptap/extension-link": "latest",
     "@tiptap/extension-image": "latest",
     "@tiptap/extension-code-block": "latest",
-    "@tiptap/extension-placeholder": "latest"
+    "@tiptap/extension-placeholder": "latest",
+    "crypto": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",

@@ -1,3 +1,12 @@
+import crypto from "crypto"
+
+/**
+ * Creates a consistent hash for a URL to use as a cache key
+ */
+export function createUrlHash(url: string): string {
+  return crypto.createHash("md5").update(url).digest("hex").substring(0, 10)
+}
+
 /**
  * Processes post content to replace image URLs with our cached proxy URLs
  */
@@ -16,8 +25,11 @@ export function processPostContent(content: string): string {
       return match
     }
 
-    // Replace the src with our proxy URL
-    const proxiedSrc = `/api/image-proxy?url=${encodeURIComponent(src)}`
+    // Create a hash of the URL for consistent caching
+    const urlHash = createUrlHash(src)
+
+    // Replace the src with our proxy URL including the hash
+    const proxiedSrc = `/api/image-proxy/${urlHash}?url=${encodeURIComponent(src)}`
     return match.replace(src, proxiedSrc)
   })
 }

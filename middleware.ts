@@ -18,8 +18,14 @@ export function middleware(request: NextRequest) {
 
   // Verificar se é uma requisição GET (apenas cache para GET)
   if (request.method === "GET") {
+    // Image proxy - ensure strong caching
+    if (pathname.startsWith("/api/image-proxy/")) {
+      response.headers.set("Cache-Control", "public, max-age=31536000, s-maxage=31536000, immutable")
+      response.headers.set("CDN-Cache-Control", "public, max-age=31536000, s-maxage=31536000, immutable")
+      response.headers.set("Vercel-CDN-Cache-Control", "public, max-age=31536000, s-maxage=31536000, immutable")
+    }
     // Páginas estáticas (home, about, etc.)
-    if (pathname === "/" || pathname === "/about") {
+    else if (pathname === "/" || pathname === "/about") {
       response.headers.set("Cache-Control", "public, max-age=3600, s-maxage=86400, stale-while-revalidate")
     }
     // Páginas de arquivo
@@ -33,11 +39,6 @@ export function middleware(request: NextRequest) {
     // Recursos estáticos
     else if (pathname.match(/\.(css|js|jpg|jpeg|png|gif|ico|svg)$/)) {
       response.headers.set("Cache-Control", "public, max-age=31536000, immutable")
-    }
-    // Resources from our image proxy - cache for a long time
-    else if (pathname.startsWith("/api/image-proxy")) {
-      // Let the API route handle the caching headers
-      // We don't set them here to avoid conflicts
     }
     // Outras páginas públicas
     else if (!pathname.startsWith("/admin") && !pathname.startsWith("/api/")) {
