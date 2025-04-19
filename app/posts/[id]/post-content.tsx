@@ -68,9 +68,9 @@ export default function PostContent({ post }: PostContentProps) {
         </div>
       </div>
 
-      {/* In the PostContent component, update the dangerouslySetInnerHTML line: */}
+      {/* Atualizado para usar as mesmas classes do editor */}
       <div
-        className="prose prose-invert prose-red max-w-none mb-8 text-justify"
+        className="prose prose-invert prose-red max-w-none mb-8 editor-content"
         dangerouslySetInnerHTML={{ __html: processPostContent(post.content) }}
       />
 

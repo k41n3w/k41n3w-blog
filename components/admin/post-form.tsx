@@ -18,7 +18,7 @@ import { createPost, updatePost } from "@/lib/supabase/actions"
 // Importar o editor de forma dinâmica para evitar problemas de SSR
 const RichTextEditor = dynamic(() => import("./rich-text-editor"), {
   ssr: false,
-  loading: () => <div className="h-64 bg-gray-800 rounded-md animate-pulse"></div>,
+  loading: () => <div className="h-[500px] bg-gray-800 rounded-md animate-pulse"></div>,
 })
 
 interface PostFormProps {
@@ -104,7 +104,7 @@ export default function PostForm({ post }: PostFormProps) {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <header className="bg-gray-900 border-b border-gray-800 py-4">
+      <header className="bg-gray-900 border-b border-gray-800 py-4 sticky top-0 z-20">
         <div className="max-w-6xl mx-auto px-4 flex justify-between items-center">
           <div className="flex items-center">
             <Link href="/admin/dashboard" className="text-red-500 hover:text-red-400 mr-4">
@@ -147,6 +147,11 @@ export default function PostForm({ post }: PostFormProps) {
 
           <div className="space-y-2">
             <Label htmlFor="content">Conteúdo</Label>
+            <div className="sticky top-[73px] z-10 bg-black pt-2 pb-1">
+              <div className="text-xs text-gray-400 mb-1">
+                Dica: Você pode colar conteúdo do Medium diretamente no editor abaixo.
+              </div>
+            </div>
             <RichTextEditor value={content} onChange={setContent} />
           </div>
 

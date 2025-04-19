@@ -67,6 +67,7 @@
     "vue-router": "latest",
     "@tiptap/pm": "latest",
     "@tiptap/core": "latest",
+    "@tiptap/extension-text-style": "latest",
     "@supabase/ssr": "latest",
     "framer-motion": "latest",
     "@vercel/analytics": "latest",
@@ -76,7 +77,14 @@
     "@tiptap/extension-link": "latest",
     "@tiptap/extension-image": "latest",
     "@tiptap/extension-code-block": "latest",
-    "@tiptap/extension-placeholder": "latest"
+    "@tiptap/extension-placeholder": "latest",
+    "@tiptap/extension-text-align": "latest",
+    "@tiptap/extension-underline": "latest",
+    "@tiptap/extension-highlight": "latest",
+    "@tiptap/extension-typography": "latest",
+    "@tiptap/extension-color": "latest",
+    "@tiptap/extension-blockquote": "latest",
+    "@tiptap/extension-horizontal-rule": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",
