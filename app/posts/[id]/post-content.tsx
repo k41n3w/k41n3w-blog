@@ -4,8 +4,9 @@ import { useState } from "react"
 import { Heart, MessageSquare, Share2 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { incrementPostLikes } from "@/lib/supabase/actions"
-// Import the content processor
-import { processPostContent } from "@/lib/utils/content-processor"
+import parse from "html-react-parser"
+import { type DOMNode, type HTMLReactParserOptions, Element, domToReact } from "html-react-parser"
+import GiphyRenderer from "@/components/post/giphy-renderer"
 
 interface PostContentProps {
   post: {
@@ -25,9 +26,6 @@ export default function PostContent({ post }: PostContentProps) {
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(post.likes || 0)
   const [isLiking, setIsLiking] = useState(false)
-
-  // Processar o conteúdo do post
-  const processedContent = processPostContent(post.content)
 
   const handleLike = async () => {
     if (liked || isLiking) return // Prevent multiple likes
@@ -56,6 +54,88 @@ export default function PostContent({ post }: PostContentProps) {
     }
   }
 
+  // Opções para o parser HTML
+  const options: HTMLReactParserOptions = {
+    replace: (domNode: DOMNode) => {
+      if (domNode instanceof Element && domNode.name === "img") {
+        const { src, alt, class: className, width, height } = domNode.attribs
+
+        // Verificar se é um GIF do Giphy
+        const isGiphy =
+          src?.includes("giphy.com") ||
+          domNode.parent?.attribs?.class?.includes("giphy") ||
+          domNode.parent?.parent?.attribs?.class?.includes("giphy")
+
+        if (isGiphy) {
+          return <GiphyRenderer src={src} alt={alt} />
+        }
+
+        // Para imagens normais
+        return (
+          <div className="my-4 flex justify-center">
+            <img
+              src={src || "/placeholder.svg"}
+              alt={alt || "Imagem"}
+              className={className || "max-w-full h-auto rounded-md"}
+              width={width ? Number.parseInt(width) : undefined}
+              height={height ? Number.parseInt(height) : undefined}
+            />
+          </div>
+        )
+      }
+
+      // Verificar se é um contêiner de Giphy
+      if (
+        domNode instanceof Element &&
+        (domNode.attribs.class?.includes("giphy-embed-container") ||
+          domNode.attribs.class?.includes("giphy-embed-wrapper"))
+      ) {
+        // Procurar pelo ID do Giphy nos atributos
+        const giphyId = domNode.attribs["data-giphy-id"]
+
+        // Se encontrarmos um ID, usar o componente GiphyRenderer
+        if (giphyId) {
+          return <GiphyRenderer giphyId={giphyId} />
+        }
+
+        // Caso contrário, procurar por uma tag img dentro do contêiner
+        const imgNode = findImgNode(domNode)
+        if (imgNode) {
+          return <GiphyRenderer src={imgNode.attribs.src} alt={imgNode.attribs.alt} />
+        }
+
+        // Se não encontrarmos uma imagem, renderizar o conteúdo normalmente
+        return (
+          <div className="giphy-embed-container my-4 flex justify-center flex-col items-center">
+            {domToReact(domNode.children, options)}
+          </div>
+        )
+      }
+    },
+  }
+
+  // Função auxiliar para encontrar uma tag img dentro de um elemento
+  function findImgNode(element: Element): Element | null {
+    if (!element.children || element.children.length === 0) {
+      return null
+    }
+
+    for (const child of element.children) {
+      if (child instanceof Element) {
+        if (child.name === "img") {
+          return child
+        }
+
+        const imgInChild = findImgNode(child)
+        if (imgInChild) {
+          return imgInChild
+        }
+      }
+    }
+
+    return null
+  }
+
   return (
     <article>
       <h1 className="text-3xl md:text-4xl font-bold text-red-500 mb-4">{post.title}</h1>
@@ -71,11 +151,8 @@ export default function PostContent({ post }: PostContentProps) {
         </div>
       </div>
 
-      {/* Atualizado para usar as mesmas classes do editor */}
-      <div
-        className="prose prose-invert prose-red max-w-none mb-8 editor-content"
-        dangerouslySetInnerHTML={{ __html: processedContent }}
-      />
+      {/* Conteúdo do post usando html-react-parser */}
+      <div className="prose prose-invert prose-red max-w-none mb-8 editor-content">{parse(post.content, options)}</div>
 
       <div className="flex items-center space-x-6 mb-8">
         <button

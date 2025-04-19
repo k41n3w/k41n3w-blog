@@ -46,7 +46,9 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip } from "./tooltip"
-import { processPostContent } from "@/lib/utils/content-processor"
+import parse from "html-react-parser"
+import { Element } from "html-react-parser"
+import GiphyRenderer from "@/components/post/giphy-renderer"
 
 interface RichTextEditorProps {
   value: string
@@ -485,7 +487,38 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
       <div className="bg-gray-800 h-[500px] overflow-y-auto">
         {isPreviewMode ? (
           <div className="prose prose-invert prose-red max-w-none p-4 editor-content">
-            <div dangerouslySetInnerHTML={{ __html: processPostContent(editor?.getHTML() || "") }} />
+            {parse(editor?.getHTML() || "", {
+              replace: (domNode) => {
+                if (domNode instanceof Element && domNode.name === "img") {
+                  const { src, alt, class: className } = domNode.attribs
+
+                  // Verificar se é um GIF do Giphy
+                  const isGiphy =
+                    src?.includes("giphy.com") ||
+                    domNode.parent?.attribs?.class?.includes("giphy") ||
+                    domNode.parent?.parent?.attribs?.class?.includes("giphy")
+
+                  if (isGiphy) {
+                    return <GiphyRenderer src={src} alt={alt} />
+                  }
+                }
+
+                // Verificar se é um contêiner de Giphy
+                if (
+                  domNode instanceof Element &&
+                  (domNode.attribs.class?.includes("giphy-embed-container") ||
+                    domNode.attribs.class?.includes("giphy-embed-wrapper"))
+                ) {
+                  // Procurar pelo ID do Giphy nos atributos
+                  const giphyId = domNode.attribs["data-giphy-id"]
+
+                  // Se encontrarmos um ID, usar o componente GiphyRenderer
+                  if (giphyId) {
+                    return <GiphyRenderer giphyId={giphyId} />
+                  }
+                }
+              },
+            })}
           </div>
         ) : (
           <EditorContent editor={editor} className="min-h-full" />

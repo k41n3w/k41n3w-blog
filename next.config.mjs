@@ -2,7 +2,7 @@
 const nextConfig = {
   // Configurações para o Supabase
   images: {
-    domains: ['v0.blob.com', 'placeholder.com'],
+    domains: ['v0.blob.com', 'placeholder.com', 'media.giphy.com', 'i.giphy.com'],
     unoptimized: true,
   },
   // Configurações para o ambiente de produção
