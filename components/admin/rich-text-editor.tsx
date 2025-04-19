@@ -75,6 +75,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
     const url = window.prompt("URL da imagem")
 
     if (url) {
+      // Use the original URL when editing, it will be proxied when displayed
       editor.chain().focus().setImage({ src: url }).run()
     }
   }

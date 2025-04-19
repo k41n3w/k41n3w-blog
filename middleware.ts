@@ -34,6 +34,11 @@ export function middleware(request: NextRequest) {
     else if (pathname.match(/\.(css|js|jpg|jpeg|png|gif|ico|svg)$/)) {
       response.headers.set("Cache-Control", "public, max-age=31536000, immutable")
     }
+    // Resources from our image proxy - cache for a long time
+    else if (pathname.startsWith("/api/image-proxy")) {
+      // Let the API route handle the caching headers
+      // We don't set them here to avoid conflicts
+    }
     // Outras páginas públicas
     else if (!pathname.startsWith("/admin") && !pathname.startsWith("/api/")) {
       response.headers.set("Cache-Control", "public, max-age=60, s-maxage=3600, stale-while-revalidate")

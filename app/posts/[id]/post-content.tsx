@@ -4,6 +4,8 @@ import { useState } from "react"
 import { Heart, MessageSquare, Share2 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { incrementPostLikes } from "@/lib/supabase/actions"
+// Import the content processor
+import { processPostContent } from "@/lib/utils/content-processor"
 
 interface PostContentProps {
   post: {
@@ -66,9 +68,10 @@ export default function PostContent({ post }: PostContentProps) {
         </div>
       </div>
 
+      {/* In the PostContent component, update the dangerouslySetInnerHTML line: */}
       <div
         className="prose prose-invert prose-red max-w-none mb-8 text-justify"
-        dangerouslySetInnerHTML={{ __html: post.content }}
+        dangerouslySetInnerHTML={{ __html: processPostContent(post.content) }}
       />
 
       <div className="flex items-center space-x-6 mb-8">
