@@ -7,20 +7,41 @@ import { Loader2 } from "lucide-react"
 export default function GiphyEmbed({ node }: NodeViewProps) {
   const { giphyId, src } = node.attrs
   const [isLoading, setIsLoading] = useState(true)
+  const [gifUrl, setGifUrl] = useState("")
+  const [error, setError] = useState("")
 
   useEffect(() => {
-    // Simular um pequeno atraso para mostrar o loader
-    const timer = setTimeout(() => {
+    if (!giphyId && !src) {
+      setError("GIF inválido")
       setIsLoading(false)
-    }, 500)
+      return
+    }
 
-    return () => clearTimeout(timer)
-  }, [])
+    // Se temos um src direto, usamos ele
+    if (src) {
+      setGifUrl(src)
+      setIsLoading(false)
+      return
+    }
 
-  if (!giphyId && !src) {
+    // Se temos um ID do Giphy, buscamos a URL direta da imagem
+    if (giphyId) {
+      // Usamos a URL direta do GIF em vez de tentar incorporar via iframe
+      setGifUrl(`https://media.giphy.com/media/${giphyId}/giphy.gif`)
+
+      // Simulamos um pequeno atraso para mostrar o loader
+      const timer = setTimeout(() => {
+        setIsLoading(false)
+      }, 500)
+
+      return () => clearTimeout(timer)
+    }
+  }, [giphyId, src])
+
+  if (error) {
     return (
       <NodeViewWrapper>
-        <div className="bg-gray-800 border border-gray-700 rounded-md p-4 text-center text-gray-400">GIF inválido</div>
+        <div className="bg-gray-800 border border-gray-700 rounded-md p-4 text-center text-gray-400">{error}</div>
       </NodeViewWrapper>
     )
   }
@@ -35,17 +56,25 @@ export default function GiphyEmbed({ node }: NodeViewProps) {
           </div>
         ) : (
           <div className="giphy-embed max-w-full overflow-hidden rounded-md">
-            {giphyId ? (
-              <iframe
-                src={`https://giphy.com/embed/${giphyId}`}
-                width="480"
-                height="360"
-                frameBorder="0"
-                className="giphy-embed"
-                allowFullScreen
-              ></iframe>
-            ) : (
-              <img src={src || "/placeholder.svg"} alt="GIF" className="max-w-full h-auto" />
+            {gifUrl && (
+              <img
+                src={gifUrl || "/placeholder.svg"}
+                alt="GIF"
+                className="max-w-full h-auto rounded-md"
+                onError={() => setError("Erro ao carregar o GIF")}
+              />
+            )}
+            {giphyId && (
+              <div className="text-xs text-gray-500 text-center mt-1">
+                <a
+                  href={`https://giphy.com/gifs/${giphyId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-red-400"
+                >
+                  via GIPHY
+                </a>
+              </div>
             )}
           </div>
         )}

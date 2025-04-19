@@ -123,7 +123,7 @@ body {
   @apply my-6 rounded-md overflow-hidden;
 }
 
-/* Corrigindo os estilos do Gist - separando as classes com prefixo ! */
+/* Estilos para o Gist */
 .gist-embed-container .gist {
   background-color: #1f2937 !important; /* bg-gray-800 */
 }
@@ -148,6 +148,7 @@ body {
   color: #f87171 !important; /* text-red-400 */
 }
 
+/* Estilos para o Giphy */
 .giphy-embed-container {
   @apply my-6 flex justify-center;
 }

@@ -31,9 +31,29 @@ export function processPostContent(content: string): string {
       if (isGistUrl(url)) {
         const { gistId, filename } = extractGistId(url)
         if (gistId) {
-          return `<div class="gist-embed-container my-4">
+          // Adicionar um ID único para o container do Gist
+          const gistContainerId = `gist-container-${gistId}`
+
+          return `<div class="gist-embed-container my-4" id="${gistContainerId}">
             <script src="https://gist.github.com/${gistId}.js${filename ? `?file=${encodeURIComponent(filename)}` : ""}"></script>
-          </div>`
+            <noscript>
+              <a href="${url}" target="_blank" rel="noopener noreferrer">Ver Gist no GitHub</a>
+            </noscript>
+          </div>
+          <script>
+            (function() {
+              // Verificar se o script do Gist foi carregado corretamente
+              setTimeout(function() {
+                var container = document.getElementById('${gistContainerId}');
+                if (container && !container.querySelector('.gist')) {
+                  // Se não encontrar o elemento .gist, recarregar o script
+                  var script = document.createElement('script');
+                  script.src = 'https://gist.github.com/${gistId}.js${filename ? `?file=${encodeURIComponent(filename)}` : ""}';
+                  container.appendChild(script);
+                }
+              }, 1000);
+            })();
+          </script>`
         }
       }
       return match
@@ -47,8 +67,12 @@ export function processPostContent(content: string): string {
       if (isGiphyUrl(url)) {
         const giphyId = extractGiphyId(url)
         if (giphyId) {
-          return `<div class="giphy-embed-container my-4 flex justify-center">
-            <iframe src="https://giphy.com/embed/${giphyId}" width="480" height="360" frameBorder="0" class="giphy-embed rounded-md" allowFullScreen></iframe>
+          // Usar a URL direta da imagem em vez de iframe
+          return `<div class="giphy-embed-container my-4 flex justify-center flex-col items-center">
+            <img src="https://media.giphy.com/media/${giphyId}/giphy.gif" alt="GIF" class="max-w-full h-auto rounded-md" />
+            <div class="text-xs text-gray-500 text-center mt-1">
+              <a href="${url}" target="_blank" rel="noopener noreferrer" class="hover:text-red-400">via GIPHY</a>
+            </div>
           </div>`
         }
       }

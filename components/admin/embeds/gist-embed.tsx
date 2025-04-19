@@ -1,20 +1,35 @@
 "use client"
 
 import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Loader2 } from "lucide-react"
 
 export default function GistEmbed({ node }: NodeViewProps) {
   const { gistId, filename } = node.attrs
   const containerRef = useRef<HTMLDivElement>(null)
-  const scriptLoaded = useRef(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState("")
+  const scriptLoadedRef = useRef(false)
 
   useEffect(() => {
-    if (!gistId || scriptLoaded.current) return
+    if (!gistId) {
+      setError("ID do Gist inválido")
+      setIsLoading(false)
+      return
+    }
+
+    // Limpar qualquer conteúdo anterior
+    if (containerRef.current) {
+      containerRef.current.innerHTML = ""
+    }
 
     const scriptId = `gist-${gistId}`
-    // Verificar se o script já existe
-    if (document.getElementById(scriptId)) return
+
+    // Remover script anterior se existir
+    const existingScript = document.getElementById(scriptId)
+    if (existingScript) {
+      existingScript.remove()
+    }
 
     // Criar o script para carregar o Gist
     const script = document.createElement("script")
@@ -25,26 +40,45 @@ export default function GistEmbed({ node }: NodeViewProps) {
     }
     script.async = true
 
-    // Adicionar o script ao container
-    if (containerRef.current) {
-      containerRef.current.innerHTML = ""
-      containerRef.current.appendChild(script)
-      scriptLoaded.current = true
+    // Definir handlers para sucesso e erro
+    script.onload = () => {
+      console.log("Gist script loaded successfully")
+      scriptLoadedRef.current = true
+      setIsLoading(false)
     }
 
+    script.onerror = () => {
+      console.error("Failed to load Gist script")
+      setError("Falha ao carregar o Gist")
+      setIsLoading(false)
+    }
+
+    // Adicionar o script ao container
+    if (containerRef.current) {
+      containerRef.current.appendChild(script)
+    }
+
+    // Definir um timeout para evitar carregamento infinito
+    const timeout = setTimeout(() => {
+      if (isLoading && !scriptLoadedRef.current) {
+        setError("Tempo limite excedido ao carregar o Gist")
+        setIsLoading(false)
+      }
+    }, 10000) // 10 segundos de timeout
+
     return () => {
+      clearTimeout(timeout)
       // Limpar o script quando o componente for desmontado
       if (document.getElementById(scriptId)) {
         document.getElementById(scriptId)?.remove()
       }
-      scriptLoaded.current = false
     }
-  }, [gistId, filename])
+  }, [gistId, filename, isLoading])
 
-  if (!gistId) {
+  if (error) {
     return (
       <NodeViewWrapper>
-        <div className="bg-gray-800 border border-gray-700 rounded-md p-4 text-center text-gray-400">Gist inválido</div>
+        <div className="bg-gray-800 border border-gray-700 rounded-md p-4 text-center text-red-400">{error}</div>
       </NodeViewWrapper>
     )
   }
@@ -52,12 +86,13 @@ export default function GistEmbed({ node }: NodeViewProps) {
   return (
     <NodeViewWrapper>
       <div className="my-4 relative">
-        <div ref={containerRef} className="gist-embed">
+        {isLoading && (
           <div className="flex justify-center items-center p-8">
             <Loader2 className="h-6 w-6 animate-spin text-red-500" />
             <span className="ml-2 text-gray-400">Carregando Gist...</span>
           </div>
-        </div>
+        )}
+        <div ref={containerRef} className="gist-embed"></div>
       </div>
     </NodeViewWrapper>
   )
