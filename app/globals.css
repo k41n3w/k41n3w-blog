@@ -64,11 +64,11 @@ body {
 }
 
 .prose code {
-  @apply bg-gray-900 px-1 py-0.5 rounded text-sm;
+  @apply bg-gray-800 px-1 py-0.5 rounded text-sm;
 }
 
 .prose pre {
-  @apply bg-gray-900 p-4 rounded-md overflow-x-auto mb-4;
+  @apply bg-gray-800 p-4 rounded-md overflow-x-auto mb-4;
 }
 
 .prose img {
@@ -107,11 +107,11 @@ body {
 }
 
 .prose-invert code {
-  @apply bg-gray-900 text-gray-300;
+  @apply bg-gray-800 text-gray-300;
 }
 
 .prose-invert pre {
-  @apply bg-gray-900;
+  @apply bg-gray-800;
 }
 
 .prose-invert hr {
@@ -142,8 +142,19 @@ body {
 }
 
 .code-block-header {
-  background-color: #0d1117;
+  background-color: #252526;
   border-bottom: 1px solid #404040;
+}
+
+/* Ajustes para o tema do highlight.js */
+.hljs {
+  background: #1e1e1e !important;
+  color: #d4d4d4 !important;
+  /* Remover qualquer realce de fundo em preto */
+  mark {
+    background-color: transparent !important;
+    color: inherit !important;
+  }
 }
 
 /* Remover qualquer realce de texto em preto */
@@ -159,11 +170,6 @@ pre mark,
 ::selection {
   background-color: rgba(79, 84, 92, 0.4) !important;
   color: inherit !important;
-}
-
-/* Garantir que não haja realce de fundo em elementos de código */
-.hljs span {
-  background-color: transparent !important;
 }
 
 /* Cores específicas para Ruby (estilo VSCode) */

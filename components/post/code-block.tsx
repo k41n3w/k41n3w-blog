@@ -52,12 +52,6 @@ export default function CodeBlock({ code, language, filename }: CodeBlockProps) 
           parent.removeChild(mark)
         }
       })
-
-      // Garantir que todos os spans não tenham background
-      const spans = codeRef.current.querySelectorAll("span")
-      spans.forEach((span) => {
-        span.style.backgroundColor = "transparent"
-      })
     }
   }, [code, language])
 
@@ -72,13 +66,13 @@ export default function CodeBlock({ code, language, filename }: CodeBlockProps) 
 
   return (
     <div className="code-block-wrapper my-6 rounded-md overflow-hidden">
-      <div className="code-block-header px-4 py-2 flex justify-between items-center bg-gray-900 border-b border-gray-700">
+      <div className="code-block-header px-4 py-2 flex justify-between items-center bg-gray-800 border-b border-gray-700">
         {filename && <span className="text-sm text-gray-300">{filename}</span>}
         <div className="flex items-center">
           <span className="text-xs text-gray-400 mr-2">{highlightLanguage}</span>
           <button
             onClick={handleCopy}
-            className="p-1 rounded hover:bg-gray-800 transition-colors"
+            className="p-1 rounded hover:bg-gray-700 transition-colors"
             title="Copiar código"
           >
             {copied ? <Check className="h-4 w-4 text-green-500" /> : <Clipboard className="h-4 w-4 text-gray-400" />}
