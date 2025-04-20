@@ -69,14 +69,36 @@ export default function ClientArchive({ posts, allTags }: ClientArchiveProps) {
     // Depois, ordenar conforme selecionado
     return result.sort((a, b) => {
       if (sortOrder === "oldest") {
-        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        try {
+          const dateA = new Date(a.created_at).getTime()
+          const dateB = new Date(b.created_at).getTime()
+          // Verificar se as datas são válidas
+          if (isNaN(dateA) || isNaN(dateB)) {
+            return 0 // Manter a ordem original se alguma data for inválida
+          }
+          return dateA - dateB
+        } catch (e) {
+          console.error("Error sorting by oldest:", e)
+          return 0
+        }
       } else if (sortOrder === "popular") {
         return (b.views || 0) - (a.views || 0)
       } else if (sortOrder === "most-liked") {
         return (b.likes || 0) - (a.likes || 0)
       } else {
         // "newest" (padrão)
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        try {
+          const dateA = new Date(a.created_at).getTime()
+          const dateB = new Date(b.created_at).getTime()
+          // Verificar se as datas são válidas
+          if (isNaN(dateA) || isNaN(dateB)) {
+            return 0 // Manter a ordem original se alguma data for inválida
+          }
+          return dateB - dateA
+        } catch (e) {
+          console.error("Error sorting by newest:", e)
+          return 0
+        }
       }
     })
   }, [posts, selectedTag, sortOrder])
@@ -275,6 +297,19 @@ export default function ClientArchive({ posts, allTags }: ClientArchiveProps) {
             // Criar um resumo do conteúdo se não houver excerpt
             const excerpt = post.excerpt || post.content.replace(/<[^>]*>/g, "").substring(0, 150) + "..."
 
+            // Formatar a data de forma segura
+            let formattedDate = "Data não disponível"
+            try {
+              if (post.created_at) {
+                formattedDate = new Date(post.created_at).toLocaleDateString()
+                if (formattedDate === "Invalid Date") {
+                  formattedDate = "Data não disponível"
+                }
+              }
+            } catch (e) {
+              console.error("Error formatting post date in card:", e)
+            }
+
             return (
               <Card key={post.id} className="bg-gray-900 border-gray-800 text-white flex flex-col">
                 <CardHeader>
@@ -283,7 +318,7 @@ export default function ClientArchive({ posts, allTags }: ClientArchiveProps) {
                   </CardTitle>
                   <div className="flex items-center text-gray-400 text-sm mt-2">
                     <Calendar className="h-4 w-4 mr-1" />
-                    <span>{new Date(post.created_at).toLocaleDateString()}</span>
+                    <span>{formattedDate}</span>
                     <span className="mx-2">•</span>
                     <span>por Caio Ramos</span>
                   </div>

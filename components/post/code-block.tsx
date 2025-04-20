@@ -71,9 +71,9 @@ export default function CodeBlock({ code, language, filename }: CodeBlockProps) 
   }
 
   return (
-    <div className="code-block-wrapper my-6 rounded-md overflow-hidden">
-      <div className="code-block-header px-4 py-2 flex justify-between items-center bg-gray-800 border-b border-gray-700">
-        {filename && <span className="text-sm text-gray-300">{filename}</span>}
+    <div className="code-block-wrapper my-6 rounded-md overflow-hidden w-full max-w-full">
+      <div className="code-block-header px-4 py-2 flex justify-between items-center bg-gray-800 border-b border-gray-700 flex-wrap">
+        {filename && <span className="text-sm text-gray-300 break-all">{filename}</span>}
         <div className="flex items-center">
           <span className="text-xs text-gray-400 mr-2">{highlightLanguage}</span>
           <button
@@ -85,11 +85,13 @@ export default function CodeBlock({ code, language, filename }: CodeBlockProps) 
           </button>
         </div>
       </div>
-      <pre className="bg-gray-900 p-4 overflow-x-auto m-0">
-        <code ref={codeRef} className={`language-${highlightLanguage} no-highlight-marks`}>
-          {code}
-        </code>
-      </pre>
+      <div className="bg-gray-900 p-0 m-0 w-full max-w-full overflow-x-auto">
+        <pre className="p-4 m-0 overflow-x-auto w-full">
+          <code ref={codeRef} className={`language-${highlightLanguage} no-highlight-marks`}>
+            {code}
+          </code>
+        </pre>
+      </div>
     </div>
   )
 }

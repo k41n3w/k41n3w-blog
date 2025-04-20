@@ -11,11 +11,41 @@
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+  overflow-x: hidden; /* Prevenir scroll horizontal em toda a página */
+}
+
+/* Garantir que todos os elementos respeitem os limites da viewport */
+* {
+  max-width: 100%;
+}
+
+/* Garantir que imagens sejam responsivas */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Garantir que blocos de código não causem overflow */
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Garantir que tabelas sejam responsivas */
+table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
 }
 
 /* Estilos específicos para o conteúdo do editor e posts */
 .prose {
   @apply text-gray-300;
+  width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .prose h1,
@@ -25,6 +55,8 @@ body {
 .prose h5,
 .prose h6 {
   @apply text-white font-bold mb-4 mt-6;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .prose h1 {
@@ -41,14 +73,19 @@ body {
 
 .prose p {
   @apply mb-4;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .prose a {
   @apply text-red-500 hover:text-red-400 underline;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .prose blockquote {
   @apply border-l-4 border-red-500 pl-4 italic my-4;
+  max-width: 100%;
 }
 
 .prose ul {
@@ -61,14 +98,20 @@ body {
 
 .prose li {
   @apply mb-1;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .prose code {
   @apply bg-gray-800 px-1 py-0.5 rounded text-sm;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  max-width: 100%;
 }
 
 .prose pre {
   @apply bg-gray-800 p-4 rounded-md overflow-x-auto mb-4;
+  max-width: 100%;
 }
 
 .prose img {
@@ -82,6 +125,9 @@ body {
 /* Estilos específicos para o editor */
 .editor-content {
   @apply p-4;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 /* Ajustes para o tema escuro */
@@ -121,11 +167,13 @@ body {
 /* Estilos para embeds */
 .giphy-embed-container {
   @apply my-6 rounded-md overflow-hidden;
+  max-width: 100%;
 }
 
 /* Estilos para o Giphy */
 .giphy-embed-container {
   @apply my-6 flex justify-center;
+  max-width: 100%;
 }
 
 .giphy-embed {
@@ -139,6 +187,7 @@ body {
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   border: 1px solid #404040;
+  max-width: 100%;
 }
 
 .code-block-header {
@@ -150,6 +199,8 @@ body {
 .hljs {
   background: #1e1e1e !important;
   color: #d4d4d4 !important;
+  max-width: 100%;
+  overflow-x: auto;
   /* Remover qualquer realce de fundo em preto */
   mark {
     background-color: transparent !important;
@@ -254,4 +305,28 @@ code span,
 /* Garantir que o fundo do bloco de código seja consistente */
 .code-block-wrapper pre {
   background-color: #1e1e1e !important;
+}
+
+/* Corrigir overflow horizontal em dispositivos móveis */
+.container {
+  width: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
+
+/* Garantir que elementos de layout não causem overflow */
+.max-w-6xl,
+.max-w-4xl {
+  width: 100%;
+  box-sizing: border-box;
 }

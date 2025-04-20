@@ -40,8 +40,8 @@ export default function Footer() {
   ]
 
   return (
-    <footer className="py-8 bg-gray-900 border-t border-gray-800">
-      <div className="max-w-6xl mx-auto px-4">
+    <footer className="py-8 bg-gray-900 border-t border-gray-800 w-full overflow-hidden">
+      <div className="max-w-6xl mx-auto px-4 box-border">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h3 className="text-xl font-bold text-red-500 mb-4">k41n3w</h3>
@@ -70,12 +70,12 @@ export default function Footer() {
           <div>
             <h3 className="text-xl font-bold text-red-500 mb-4">Subscribe</h3>
             <p className="text-gray-400 mb-4">Get the latest posts delivered to your inbox.</p>
-            <div className="flex">
+            <div className="flex flex-wrap">
               <input
                 type="email"
                 placeholder="Your email"
                 disabled
-                className="bg-gray-800 text-white px-4 py-2 rounded-l-md focus:outline-none focus:ring-1 focus:ring-red-500 border-0 opacity-70"
+                className="bg-gray-800 text-white px-4 py-2 rounded-l-md focus:outline-none focus:ring-1 focus:ring-red-500 border-0 opacity-70 flex-grow min-w-0"
               />
               <TooltipProvider>
                 <TooltipRoot>
@@ -99,7 +99,7 @@ export default function Footer() {
         {/* Social Media Icons */}
         <div className="mt-8 pt-6 border-t border-gray-800 flex flex-col items-center">
           <h3 className="text-lg font-semibold text-red-500 mb-4">Connect With Me</h3>
-          <div className="flex space-x-6 mb-6">
+          <div className="flex flex-wrap justify-center gap-4 mb-6">
             {socialLinks.map((social) => (
               <a
                 key={social.name}

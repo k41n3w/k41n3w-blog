@@ -6,6 +6,8 @@ import { TABLES } from "@/lib/supabase/config"
 import ClientArchive from "@/components/archive/client-archive"
 import RetryButton from "@/components/archive/retry-button"
 import Footer from "@/components/layout/footer"
+import { Breadcrumbs } from "@/components/seo/breadcrumbs"
+import { JsonLd } from "@/components/seo/json-ld"
 
 // Configuração para geração estática com revalidação
 export const dynamic = "force-static"
@@ -14,8 +16,17 @@ export const revalidate = 3600 // Revalidar a cada hora
 // Função para gerar metadados estáticos
 export async function generateMetadata() {
   return {
-    title: "Archive - Ruby on Rails Tech Blog",
-    description: "Browse all posts from the Ruby on Rails Tech Blog",
+    title: "Arquivo de Posts - Ruby on Rails Tech Blog",
+    description:
+      "Explore todos os artigos técnicos sobre Ruby on Rails, desenvolvimento web, e boas práticas de programação.",
+    openGraph: {
+      title: "Arquivo de Posts - Ruby on Rails Tech Blog",
+      description:
+        "Explore todos os artigos técnicos sobre Ruby on Rails, desenvolvimento web, e boas práticas de programação.",
+    },
+    alternates: {
+      canonical: `/archive`,
+    },
   }
 }
 
@@ -36,7 +47,29 @@ export default async function ArchivePage() {
       console.error("Error fetching posts:", postsError)
       error = postsError
     } else {
-      posts = postsData
+      // Garantir que as datas são válidas
+      posts = postsData.map((post) => {
+        // Verificar se created_at é válido
+        let validCreatedAt = post.created_at
+        try {
+          if (post.created_at) {
+            const date = new Date(post.created_at)
+            if (isNaN(date.getTime())) {
+              validCreatedAt = new Date().toISOString()
+            }
+          } else {
+            validCreatedAt = new Date().toISOString()
+          }
+        } catch (e) {
+          console.error("Error validating date:", e)
+          validCreatedAt = new Date().toISOString()
+        }
+
+        return {
+          ...post,
+          created_at: validCreatedAt,
+        }
+      })
     }
 
     // 2. Buscar todas as tags em uma única consulta
@@ -106,8 +139,46 @@ export default async function ArchivePage() {
     error = e
   }
 
+  // Preparar dados para o Schema.org
+  const blogSchema = {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: "Ruby on Rails Tech Blog - Arquivo",
+    description: "Arquivo de posts técnicos sobre Ruby on Rails e desenvolvimento web",
+    url: `/archive`,
+    blogPost: posts.map((post) => {
+      // Garantir que temos uma data válida para publicação
+      let datePublished
+      try {
+        datePublished = post.created_at ? new Date(post.created_at).toISOString() : new Date().toISOString()
+        // Verificar se a data é válida
+        if (datePublished === "Invalid Date") {
+          datePublished = new Date().toISOString()
+        }
+      } catch (e) {
+        console.error("Error formatting blog post date:", e)
+        datePublished = new Date().toISOString()
+      }
+
+      return {
+        "@type": "BlogPosting",
+        headline: post.title,
+        description: post.excerpt || post.content.substring(0, 160).replace(/<[^>]*>/g, ""),
+        datePublished: datePublished,
+        author: {
+          "@type": "Person",
+          name: "Caio Ramos",
+        },
+        url: `/posts/${post.id}`,
+      }
+    }),
+  }
+
   return (
     <div className="min-h-screen bg-black text-white">
+      {/* Schema.org JSON-LD */}
+      <JsonLd data={blogSchema} />
+
       {/* Header */}
       <header className="bg-gray-900 border-b border-gray-800 py-4">
         <div className="max-w-6xl mx-auto px-4 flex justify-between items-center">
@@ -125,6 +196,8 @@ export default async function ArchivePage() {
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-8">
+        <Breadcrumbs items={[{ label: "Arquivo", href: "/archive" }]} />
+
         <h1 className="text-4xl font-bold text-red-500 mb-8">Arquivo de Posts</h1>
 
         {error ? (

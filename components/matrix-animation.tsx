@@ -20,8 +20,13 @@ export default function MatrixAnimation() {
     if (!ctx) return
 
     // Set canvas dimensions
-    canvas.width = window.innerWidth
-    canvas.height = 400
+    const updateCanvasSize = () => {
+      canvas.width = window.innerWidth
+      canvas.height = 400
+    }
+
+    // Initial size
+    updateCanvasSize()
 
     // Matrix characters
     const characters = "abcdefghijklmnopqrstuvwxyz0123456789$+-*/=%\"'#&_(),.;:?!\\|{}<>[]^~"
@@ -112,7 +117,17 @@ export default function MatrixAnimation() {
 
     // Handle window resize
     const handleResize = () => {
-      canvas.width = window.innerWidth
+      updateCanvasSize()
+      // Recalculate columns and drops on resize
+      const newColumns = Math.floor(canvas.width / 20)
+
+      // Adjust drops array if needed
+      if (newColumns > drops.length) {
+        // Add new drops if canvas got wider
+        for (let i = drops.length; i < newColumns; i++) {
+          drops.push(Math.random() * -100)
+        }
+      }
     }
 
     window.addEventListener("resize", handleResize)
@@ -126,10 +141,12 @@ export default function MatrixAnimation() {
     <>
       <canvas ref={canvasRef} className="absolute top-0 left-0 w-full h-full" />
       <div
-        className={`absolute top-0 left-0 w-full h-full flex items-center justify-center transition-opacity duration-1000 ${animationComplete ? "opacity-100" : "opacity-0"}`}
+        className={`absolute top-0 left-0 w-full h-full flex items-center justify-center transition-opacity duration-1000 ${
+          animationComplete ? "opacity-100" : "opacity-0"
+        }`}
       >
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-red-600 mb-4">Ruby on Rails Tech Blog</h1>
+        <div className="text-center px-4">
+          <h1 className="text-3xl md:text-4xl font-bold text-red-600 mb-4">Ruby on Rails Tech Blog</h1>
           <p className="text-xl text-red-400">Insights from a Rails Tech Lead</p>
         </div>
       </div>
