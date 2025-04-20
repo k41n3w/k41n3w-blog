@@ -30,6 +30,19 @@ export default function RootLayout({
           crossOrigin="anonymous"
           referrerPolicy="no-referrer"
         />
+        {/* Adicionar estilo inline para garantir que não haja realces de fundo */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+    pre code, .hljs {
+      background-color: #1e1e1e !important;
+    }
+    pre code *, .hljs * {
+      background-color: transparent !important;
+    }
+  `,
+          }}
+        />
       </head>
       <body className={inter.className}>
         <Suspense>

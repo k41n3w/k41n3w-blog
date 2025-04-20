@@ -52,6 +52,12 @@ export default function CodeBlock({ code, language, filename }: CodeBlockProps) 
           parent.removeChild(mark)
         }
       })
+
+      // Remover qualquer background de spans dentro do código
+      const spans = codeRef.current.querySelectorAll("span")
+      spans.forEach((span) => {
+        span.style.backgroundColor = "transparent"
+      })
     }
   }, [code, language])
 

@@ -210,3 +210,48 @@ pre mark,
 .language-ruby .hljs-number {
   color: #b5cea8 !important; /* verde claro para números */
 }
+
+/* Adicione estas regras para remover qualquer realce de fundo em blocos de código */
+
+/* Remover qualquer realce de fundo em elementos code */
+pre code,
+.hljs {
+  background-color: #1e1e1e !important;
+  color: #d4d4d4 !important;
+}
+
+/* Remover qualquer realce de texto dentro de blocos de código */
+pre code *,
+.hljs * {
+  background-color: transparent !important;
+}
+
+/* Garantir que não haja realces de fundo em elementos específicos */
+.hljs-keyword,
+.hljs-string,
+.hljs-function,
+.hljs-class,
+.hljs-title,
+.hljs-symbol,
+.hljs-comment,
+.hljs-variable,
+.hljs-params,
+.hljs-number {
+  background-color: transparent !important;
+}
+
+/* Remover qualquer marca ou realce que possa estar causando o problema */
+pre mark,
+code mark,
+.hljs mark,
+pre span,
+code span,
+.hljs span {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+/* Garantir que o fundo do bloco de código seja consistente */
+.code-block-wrapper pre {
+  background-color: #1e1e1e !important;
+}
