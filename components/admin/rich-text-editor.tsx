@@ -6,7 +6,6 @@ import StarterKit from "@tiptap/starter-kit"
 import Heading from "@tiptap/extension-heading"
 import Link from "@tiptap/extension-link"
 import Image from "@tiptap/extension-image"
-import CodeBlock from "@tiptap/extension-code-block"
 import Placeholder from "@tiptap/extension-placeholder"
 import TextAlign from "@tiptap/extension-text-align"
 import Underline from "@tiptap/extension-underline"
@@ -49,6 +48,10 @@ import { Tooltip } from "./tooltip"
 import parse from "html-react-parser"
 import { Element } from "html-react-parser"
 import GiphyRenderer from "@/components/post/giphy-renderer"
+import { CustomCodeBlock } from "@/lib/editor/extensions/code-extensions"
+// Substituir a importação do CodeBlock padrão
+// import CodeBlock from "@tiptap/extension-code-block"
+import CodeBlock from "@/components/post/code-block"
 
 interface RichTextEditorProps {
   value: string
@@ -62,7 +65,10 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        codeBlock: false, // Desabilitar o CodeBlock padrão
+      }),
+      CustomCodeBlock, // Usar nossa extensão personalizada
       Heading.configure({
         levels: [1, 2, 3],
       }),
@@ -515,6 +521,27 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
                   // Se encontrarmos um ID, usar o componente GiphyRenderer
                   if (giphyId) {
                     return <GiphyRenderer giphyId={giphyId} />
+                  }
+                }
+
+                // Tratar blocos de código
+                if (domNode instanceof Element && domNode.name === "pre") {
+                  // Verificar se há um elemento code dentro do pre
+                  const codeElement = domNode.children.find(
+                    (child): child is Element => child instanceof Element && child.name === "code",
+                  )
+
+                  if (codeElement) {
+                    // Detectar a linguagem a partir das classes
+                    const language = codeElement.attribs.class?.replace("language-", "") || ""
+
+                    // Obter o conteúdo do código
+                    let code = ""
+                    if (codeElement.children.length > 0 && typeof codeElement.children[0].data === "string") {
+                      code = codeElement.children[0].data
+                    }
+
+                    return <CodeBlock code={code} language={language} />
                   }
                 }
               },

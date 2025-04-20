@@ -4,6 +4,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { Analytics } from "@vercel/analytics/react"
 import { Suspense } from "react"
+import HighlightScript from "@/components/highlight-script"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -24,6 +25,7 @@ export default function RootLayout({
         <Suspense>
           {children}
           <Analytics />
+          <HighlightScript />
         </Suspense>
       </body>
     </html>

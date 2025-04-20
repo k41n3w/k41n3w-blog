@@ -64,11 +64,11 @@ body {
 }
 
 .prose code {
-  @apply bg-gray-800 px-1 py-0.5 rounded text-sm;
+  @apply bg-gray-900 px-1 py-0.5 rounded text-sm;
 }
 
 .prose pre {
-  @apply bg-gray-800 p-4 rounded-md overflow-x-auto mb-4;
+  @apply bg-gray-900 p-4 rounded-md overflow-x-auto mb-4;
 }
 
 .prose img {
@@ -107,11 +107,11 @@ body {
 }
 
 .prose-invert code {
-  @apply bg-gray-800 text-gray-300;
+  @apply bg-gray-900 text-gray-300;
 }
 
 .prose-invert pre {
-  @apply bg-gray-800;
+  @apply bg-gray-900;
 }
 
 .prose-invert hr {
@@ -119,33 +119,8 @@ body {
 }
 
 /* Estilos para embeds */
-.gist-embed-container {
+.giphy-embed-container {
   @apply my-6 rounded-md overflow-hidden;
-}
-
-/* Estilos para o Gist */
-.gist-embed-container .gist {
-  background-color: #1f2937 !important; /* bg-gray-800 */
-}
-
-.gist-embed-container .gist .gist-file {
-  border: 1px solid #374151 !important; /* border-gray-700 */
-  border-radius: 0.375rem !important; /* rounded-md */
-}
-
-.gist-embed-container .gist .gist-data {
-  background-color: #1f2937 !important; /* bg-gray-800 */
-  border-bottom: 1px solid #374151 !important; /* border-gray-700 */
-}
-
-.gist-embed-container .gist .gist-meta {
-  background-color: #111827 !important; /* bg-gray-900 */
-  color: #9ca3af !important; /* text-gray-400 */
-  border-top: 1px solid #374151 !important; /* border-gray-700 */
-}
-
-.gist-embed-container .gist .gist-meta a {
-  color: #f87171 !important; /* text-red-400 */
 }
 
 /* Estilos para o Giphy */
@@ -155,4 +130,77 @@ body {
 
 .giphy-embed {
   @apply rounded-md max-w-full;
+}
+
+/* Estilos personalizados para o highlight.js */
+.code-block-wrapper {
+  margin: 1.5em 0;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid #404040;
+}
+
+.code-block-header {
+  background-color: #0d1117;
+  border-bottom: 1px solid #404040;
+}
+
+/* Remover qualquer realce de texto em preto */
+code mark,
+pre mark,
+.hljs mark {
+  background-color: transparent !important;
+  color: inherit !important;
+  text-shadow: none !important;
+}
+
+/* Remover qualquer seleção ou realce indesejado */
+::selection {
+  background-color: rgba(79, 84, 92, 0.4) !important;
+  color: inherit !important;
+}
+
+/* Garantir que não haja realce de fundo em elementos de código */
+.hljs span {
+  background-color: transparent !important;
+}
+
+/* Cores específicas para Ruby (estilo VSCode) */
+.language-ruby .hljs-keyword {
+  color: #c586c0 !important; /* rosa para keywords como def, class, if, etc */
+}
+
+.language-ruby .hljs-string {
+  color: #ce9178 !important; /* laranja para strings */
+}
+
+.language-ruby .hljs-function {
+  color: #dcdcaa !important; /* amarelo para funções */
+}
+
+.language-ruby .hljs-class,
+.language-ruby .hljs-title.class_,
+.language-ruby .hljs-title.class_.inherited__ {
+  color: #4ec9b0 !important; /* verde-água para classes */
+}
+
+.language-ruby .hljs-symbol {
+  color: #b5cea8 !important; /* verde claro para símbolos */
+}
+
+.language-ruby .hljs-comment {
+  color: #6a9955 !important; /* verde para comentários */
+}
+
+.language-ruby .hljs-variable {
+  color: #9cdcfe !important; /* azul claro para variáveis */
+}
+
+.language-ruby .hljs-params {
+  color: #9cdcfe !important; /* azul claro para parâmetros */
+}
+
+.language-ruby .hljs-number {
+  color: #b5cea8 !important; /* verde claro para números */
 }
