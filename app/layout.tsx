@@ -27,11 +27,10 @@ export default function RootLayout({
         {/* Adicionar meta viewport para garantir comportamento responsivo adequado */}
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 
-        {/* Mudando para um tema diferente que não tem o problema de realce em preto */}
+        {/* Mudando para um tema diferente que não tem o problema de realce em preto - removendo integrity */}
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"
-          integrity="sha512-Jk4AqjWsdSzSNJwO9WysJy+TUE3gdQX4GUvXI0OrCwBPn1Ot9OcOuCimN3WLnXazkigUlavC6EvU14TRiUQ8g=="
           crossOrigin="anonymous"
           referrerPolicy="no-referrer"
         />

@@ -10,6 +10,7 @@ import CommentSection from "./comment-section"
 import Footer from "@/components/layout/footer"
 import { generatePostMetadata } from "@/lib/seo/metadata"
 import { JsonLd } from "@/components/seo/json-ld"
+import { processPostContent } from "@/lib/utils/content-processor"
 
 // Configuração para geração estática com revalidação
 export const dynamic = "force-static"
@@ -65,6 +66,9 @@ export default async function PostPage({ params }: { params: { id: string } }) {
     console.error("Post not found with ID:", params.id)
     notFound()
   }
+
+  // Processar o conteúdo do post para substituir URLs de imagens, etc.
+  const processedContent = processPostContent(post.content)
 
   // Buscar comentários separadamente
   const { data: comments = [] } = await supabase
@@ -175,7 +179,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
             post={{
               id: post.id,
               title: post.title,
-              content: post.content,
+              content: processedContent,
               date: (() => {
                 try {
                   return post.created_at ? new Date(post.created_at).toLocaleDateString() : "Data não disponível"

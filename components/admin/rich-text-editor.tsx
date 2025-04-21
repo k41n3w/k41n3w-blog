@@ -45,12 +45,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip } from "./tooltip"
-import parse from "html-react-parser"
-import { Element } from "html-react-parser"
-import GiphyRenderer from "@/components/post/giphy-renderer"
 import { CustomCodeBlock } from "@/lib/editor/extensions/code-extensions"
-// Substituir a importação do CodeBlock padrão
-// import CodeBlock from "@tiptap/extension-code-block"
 import CodeBlock from "@/components/post/code-block"
 
 interface RichTextEditorProps {
@@ -62,6 +57,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
   const [isMounted, setIsMounted] = useState(false)
   const [selectedColor, setSelectedColor] = useState("#000000")
   const [isPreviewMode, setIsPreviewMode] = useState(false)
+  const [previewContent, setPreviewContent] = useState("")
 
   const editor = useEditor({
     extensions: [
@@ -119,6 +115,12 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
   useEffect(() => {
     setIsMounted(true)
   }, [])
+
+  useEffect(() => {
+    if (isPreviewMode && editor) {
+      setPreviewContent(editor.getHTML())
+    }
+  }, [isPreviewMode, editor])
 
   if (!isMounted) {
     return null
@@ -197,7 +199,17 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
   }
 
   const togglePreviewMode = () => {
-    setIsPreviewMode(!isPreviewMode)
+    if (isPreviewMode) {
+      setIsPreviewMode(false)
+    } else {
+      setPreviewContent(editor?.getHTML() || "")
+      setIsPreviewMode(true)
+    }
+  }
+
+  // Função simples para renderizar o conteúdo HTML na visualização
+  const renderPreview = () => {
+    return <div dangerouslySetInnerHTML={{ __html: previewContent }} />
   }
 
   return (
@@ -492,61 +504,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
       {/* Área de edição ou visualização com altura fixa e scroll interno */}
       <div className="bg-gray-800 h-[500px] overflow-y-auto">
         {isPreviewMode ? (
-          <div className="prose prose-invert prose-red max-w-none p-4 editor-content">
-            {parse(editor?.getHTML() || "", {
-              replace: (domNode) => {
-                if (domNode instanceof Element && domNode.name === "img") {
-                  const { src, alt, class: className } = domNode.attribs
-
-                  // Verificar se é um GIF do Giphy
-                  const isGiphy =
-                    src?.includes("giphy.com") ||
-                    domNode.parent?.attribs?.class?.includes("giphy") ||
-                    domNode.parent?.parent?.attribs?.class?.includes("giphy")
-
-                  if (isGiphy) {
-                    return <GiphyRenderer src={src} alt={alt} />
-                  }
-                }
-
-                // Verificar se é um contêiner de Giphy
-                if (
-                  domNode instanceof Element &&
-                  (domNode.attribs.class?.includes("giphy-embed-container") ||
-                    domNode.attribs.class?.includes("giphy-embed-wrapper"))
-                ) {
-                  // Procurar pelo ID do Giphy nos atributos
-                  const giphyId = domNode.attribs["data-giphy-id"]
-
-                  // Se encontrarmos um ID, usar o componente GiphyRenderer
-                  if (giphyId) {
-                    return <GiphyRenderer giphyId={giphyId} />
-                  }
-                }
-
-                // Tratar blocos de código
-                if (domNode instanceof Element && domNode.name === "pre") {
-                  // Verificar se há um elemento code dentro do pre
-                  const codeElement = domNode.children.find(
-                    (child): child is Element => child instanceof Element && child.name === "code",
-                  )
-
-                  if (codeElement) {
-                    // Detectar a linguagem a partir das classes
-                    const language = codeElement.attribs.class?.replace("language-", "") || ""
-
-                    // Obter o conteúdo do código
-                    let code = ""
-                    if (codeElement.children.length > 0 && typeof codeElement.children[0].data === "string") {
-                      code = codeElement.children[0].data
-                    }
-
-                    return <CodeBlock code={code} language={language} />
-                  }
-                }
-              },
-            })}
-          </div>
+          <div className="prose prose-invert prose-red max-w-none p-4 editor-content">{renderPreview()}</div>
         ) : (
           <EditorContent editor={editor} className="min-h-full" />
         )}

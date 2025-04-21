@@ -124,7 +124,7 @@ export interface Database {
         }
         Returns: undefined
       }
-       increment_post_likes: {
+      increment_post_likes: {
         Args: {
           post_id: string
         }
