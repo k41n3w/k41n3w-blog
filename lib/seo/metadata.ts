@@ -74,10 +74,7 @@ export function generateBaseMetadata(): Metadata {
       creator: siteConfig.twitterHandle,
     },
     icons: {
-      icon: [
-        { url: "/favicon.ico", sizes: "any" },
-        { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-      ],
+      icon: "/favicon.ico",
       shortcut: "/favicon-16x16.png",
       apple: "/apple-touch-icon.png",
     },

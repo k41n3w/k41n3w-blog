@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, Heart, ChevronDown } from "lucide-react"
+import { ArrowRight, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { createClient } from "@/lib/supabase/server"
@@ -53,7 +53,16 @@ export default async function Home() {
     let formattedDate = "Data não disponível"
     try {
       if (post.created_at) {
-        formattedDate = new Date(post.created_at).toLocaleDateString()
+        const date = new Date(post.created_at)
+        // Formato brasileiro: dia/mês/ano
+        formattedDate = date.toLocaleDateString("pt-BR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        })
+        if (formattedDate === "Invalid Date") {
+          formattedDate = "Data não disponível"
+        }
       }
     } catch (e) {
       console.error("Error formatting date:", e)
@@ -136,19 +145,15 @@ export default async function Home() {
       <JsonLd data={organizationSchema} />
       <JsonLd data={blogPostingListSchema} />
 
-      {/* Matrix Animation Header - Increased height */}
-      <div className="relative w-full h-[700px]">
+      {/* Matrix Animation Header */}
+      <div className="relative w-full h-[400px]">
         <MatrixAnimation />
-        {/* Seta vermelha animada */}
-        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <ChevronDown size={48} className="text-red-600" />
-        </div>
       </div>
 
-      {/* Latest Posts Section - Added more padding at the top */}
-      <section className="py-16 px-4 w-full box-border">
+      {/* Latest Posts Section */}
+      <section className="py-12 px-4 w-full box-border">
         <div className="max-w-6xl mx-auto w-full">
-          <h1 className="text-3xl font-bold mb-8 text-red-500">Latest Posts</h1>
+          <h1 className="text-3xl font-bold mb-8 text-red-500 text-center">Últimas postagens</h1>
           {formattedPosts.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-gray-400">No posts found. Check back soon!</p>
@@ -180,7 +185,7 @@ export default async function Home() {
                     </div>
                     <Link href={`/posts/${post.id}`}>
                       <Button variant="ghost" className="text-red-500 hover:text-red-400 hover:bg-gray-800">
-                        Read More <ArrowRight className="ml-2 h-4 w-4" />
+                        Saiba mais <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </Link>
                   </CardFooter>

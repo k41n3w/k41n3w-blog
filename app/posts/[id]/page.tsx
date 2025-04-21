@@ -153,7 +153,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
         <div className="max-w-4xl mx-auto px-4 flex justify-between items-center">
           <Link href="/" className="flex items-center text-red-500 hover:text-red-400">
             <ArrowLeft className="mr-2 h-5 w-5" />
-            Back to Home
+            Voltar para home
           </Link>
           <Link href="/admin/login">
             <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-900/20">
@@ -178,7 +178,13 @@ export default async function PostPage({ params }: { params: { id: string } }) {
               content: post.content,
               date: (() => {
                 try {
-                  return post.created_at ? new Date(post.created_at).toLocaleDateString() : "Data não disponível"
+                  return post.created_at
+                    ? new Date(post.created_at).toLocaleDateString("pt-BR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })
+                    : "Data não disponível"
                 } catch (e) {
                   console.error("Error formatting post date:", e)
                   return "Data não disponível"
@@ -204,7 +210,13 @@ export default async function PostPage({ params }: { params: { id: string } }) {
             content: comment.content,
             date: (() => {
               try {
-                return comment.created_at ? new Date(comment.created_at).toLocaleDateString() : "Data não disponível"
+                return comment.created_at
+                  ? new Date(comment.created_at).toLocaleDateString("pt-BR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })
+                  : "Data não disponível"
               } catch (e) {
                 console.error("Error formatting comment date:", e)
                 return "Data não disponível"

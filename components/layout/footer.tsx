@@ -45,7 +45,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h3 className="text-xl font-bold text-red-500 mb-4">k41n3w</h3>
-            <p className="text-gray-400">A tech blog for Ruby on Rails developers and enthusiasts.</p>
+            <p className="text-gray-400">Entre códigos, dados e ideias: Rails, IA e inovação.</p>
           </div>
           <div>
             <h3 className="text-xl font-bold text-red-500 mb-4">Links</h3>
@@ -69,7 +69,7 @@ export default function Footer() {
           </div>
           <div>
             <h3 className="text-xl font-bold text-red-500 mb-4">Subscribe</h3>
-            <p className="text-gray-400 mb-4">Get the latest posts delivered to your inbox.</p>
+            <p className="text-gray-400 mb-4">Em breve teremos uma news letter!</p>
             <div className="flex flex-wrap">
               <input
                 type="email"
@@ -98,7 +98,7 @@ export default function Footer() {
 
         {/* Social Media Icons */}
         <div className="mt-8 pt-6 border-t border-gray-800 flex flex-col items-center">
-          <h3 className="text-lg font-semibold text-red-500 mb-4">Connect With Me</h3>
+          <h3 className="text-lg font-semibold text-red-500 mb-4">Você me encontra em:</h3>
           <div className="flex flex-wrap justify-center gap-4 mb-6">
             {socialLinks.map((social) => (
               <a

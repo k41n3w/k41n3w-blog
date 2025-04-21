@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { ChevronDown } from "lucide-react"
+import { ArrowDown } from "lucide-react"
 
 export default function MatrixAnimation() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -20,10 +20,10 @@ export default function MatrixAnimation() {
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    // Set canvas dimensions - mantendo a altura em 700px
+    // Set canvas dimensions
     const updateCanvasSize = () => {
       canvas.width = window.innerWidth
-      canvas.height = 700
+      canvas.height = 400
     }
 
     // Initial size
@@ -33,26 +33,13 @@ export default function MatrixAnimation() {
     const characters = "abcdefghijklmnopqrstuvwxyz0123456789$+-*/=%\"'#&_(),.;:?!\\|{}<>[]^~"
     const targetText = "k41n3w"
 
-    // Array of character columns - voltando para o espaçamento original de 20px
-    const columnSpacing = 20 // Voltando para 20px conforme solicitado
-    const columns = Math.floor(canvas.width / columnSpacing)
+    // Array of character columns
+    const columns = Math.floor(canvas.width / 20)
     const drops: number[] = []
-    const speeds: number[] = [] // Different speeds for each column
-    const maxLengths: number[] = [] // Different max lengths for each column
-    const densities: number[] = [] // Densidade de caracteres por coluna (probabilidade de desenhar)
 
-    // Initialize drops with varying properties
+    // Initialize drops
     for (let i = 0; i < columns; i++) {
       drops[i] = Math.random() * -100
-
-      // Velocidades variadas (0.3 a 2.0)
-      speeds[i] = 0.3 + Math.random() * 1.7
-
-      // Comprimentos máximos variados (10 a 35) - voltando ao original
-      maxLengths[i] = 10 + Math.floor(Math.random() * 25)
-
-      // Densidade variada (30% a 80% de chance de desenhar um caractere)
-      densities[i] = 0.3 + Math.random() * 0.5
     }
 
     // Text to display at the end
@@ -71,37 +58,23 @@ export default function MatrixAnimation() {
 
       // Draw falling characters
       for (let i = 0; i < drops.length; i++) {
-        // Decidir se desenha um caractere nesta posição com base na densidade
-        const shouldDraw = Math.random() < densities[i]
+        // Random character
+        const text = characters.charAt(Math.floor(Math.random() * characters.length))
 
-        if (shouldDraw) {
-          // Random character
-          const text = characters.charAt(Math.floor(Math.random() * characters.length))
+        // x coordinate of the drop
+        const x = i * 20
+        // y coordinate of the drop
+        const y = drops[i] * 20
 
-          // x coordinate of the drop
-          const x = i * columnSpacing
-          // y coordinate of the drop
-          const y = drops[i] * 20
+        ctx.fillText(text, x, y)
 
-          // Desenhar o caractere
-          ctx.fillText(text, x, y)
+        // Send the drop back to the top randomly after it crosses the screen
+        if (drops[i] * 20 > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0
         }
 
-        // Increment y coordinate with varying speed
-        drops[i] += speeds[i]
-
-        // Reset the drop back to the top when it reaches its maximum length
-        // or goes off screen, but continue the animation indefinitely
-        const maxY = maxLengths[i] * 20
-        if (drops[i] * 20 > canvas.height || drops[i] * 20 > maxY) {
-          // Reset to slightly above the top of the screen for continuous animation
-          drops[i] = -1 - Math.random() * 5 // Valores negativos para começar acima da tela
-
-          // Randomize properties again for variety
-          speeds[i] = 0.3 + Math.random() * 1.7
-          maxLengths[i] = 10 + Math.floor(Math.random() * 25) // Voltando para 10-35
-          densities[i] = 0.3 + Math.random() * 0.5
-        }
+        // Increment y coordinate
+        drops[i]++
       }
 
       // Check the current animation state using the ref
@@ -147,16 +120,13 @@ export default function MatrixAnimation() {
     const handleResize = () => {
       updateCanvasSize()
       // Recalculate columns and drops on resize
-      const newColumns = Math.floor(canvas.width / columnSpacing)
+      const newColumns = Math.floor(canvas.width / 20)
 
       // Adjust drops array if needed
       if (newColumns > drops.length) {
         // Add new drops if canvas got wider
         for (let i = drops.length; i < newColumns; i++) {
           drops.push(Math.random() * -100)
-          speeds.push(0.3 + Math.random() * 1.7)
-          maxLengths.push(10 + Math.floor(Math.random() * 25)) // Voltando para 10-35
-          densities.push(0.3 + Math.random() * 0.5)
         }
       }
     }
@@ -177,12 +147,12 @@ export default function MatrixAnimation() {
         }`}
       >
         <div className="text-center px-4">
-          <h1 className="text-3xl md:text-4xl font-bold text-red-600 mb-4">Vamos compartilhar conhecimento</h1>
-          <p className="text-xl text-red-400">Falando de tecnologia?</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-red-600 mb-4">K41n3w Dev Notes</h1>
+          <p className="text-xl text-red-400">Ruby on Rails, inteligência artificial e além.</p>
         </div>
       </div>
-      <div className="absolute bottom-10 left-0 right-0 flex justify-center animate-bounce">
-        <ChevronDown size={48} className="text-red-600" />
+      <div className="absolute bottom-0 w-full flex justify-center pb-4">
+        <ArrowDown className="h-8 w-8 text-red-500 animate-bounce" />
       </div>
     </>
   )

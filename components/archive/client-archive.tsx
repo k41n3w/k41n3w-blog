@@ -301,7 +301,11 @@ export default function ClientArchive({ posts, allTags }: ClientArchiveProps) {
             let formattedDate = "Data não disponível"
             try {
               if (post.created_at) {
-                formattedDate = new Date(post.created_at).toLocaleDateString()
+                formattedDate = new Date(post.created_at).toLocaleDateString("pt-BR", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                })
                 if (formattedDate === "Invalid Date") {
                   formattedDate = "Data não disponível"
                 }

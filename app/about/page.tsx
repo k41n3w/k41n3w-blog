@@ -49,7 +49,7 @@ export default function AboutPage() {
         <div className="max-w-6xl mx-auto px-4 flex justify-between items-center">
           <Link href="/" className="flex items-center text-red-500 hover:text-red-400">
             <ArrowLeft className="mr-2 h-5 w-5" />
-            Voltar para a Home
+            Voltar para home
           </Link>
           <Link href="/admin/login">
             <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-900/20">
