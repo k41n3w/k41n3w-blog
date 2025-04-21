@@ -136,13 +136,13 @@ export default async function Home() {
       <JsonLd data={organizationSchema} />
       <JsonLd data={blogPostingListSchema} />
 
-      {/* Matrix Animation Header */}
-      <div className="relative w-full h-[400px]">
+      {/* Matrix Animation Header - Increased height */}
+      <div className="relative w-full h-[500px]">
         <MatrixAnimation />
       </div>
 
-      {/* Latest Posts Section */}
-      <section className="py-12 px-4 w-full box-border">
+      {/* Latest Posts Section - Added more padding at the top */}
+      <section className="py-16 px-4 w-full box-border">
         <div className="max-w-6xl mx-auto w-full">
           <h1 className="text-3xl font-bold mb-8 text-red-500">Latest Posts</h1>
           {formattedPosts.length === 0 ? (

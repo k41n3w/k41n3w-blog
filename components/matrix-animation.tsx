@@ -22,7 +22,7 @@ export default function MatrixAnimation() {
     // Set canvas dimensions
     const updateCanvasSize = () => {
       canvas.width = window.innerWidth
-      canvas.height = 400
+      canvas.height = 500 // Increased height to accommodate extended animation
     }
 
     // Initial size
@@ -35,10 +35,15 @@ export default function MatrixAnimation() {
     // Array of character columns
     const columns = Math.floor(canvas.width / 20)
     const drops: number[] = []
+    const speeds: number[] = [] // Different speeds for each column
+    const maxLengths: number[] = [] // Different max lengths for each column
 
-    // Initialize drops
+    // Initialize drops with varying properties
     for (let i = 0; i < columns; i++) {
       drops[i] = Math.random() * -100
+      speeds[i] = 0.5 + Math.random() * 1.5 // Random speed between 0.5 and 2
+      // Random max length (in character units) between 15 and 30
+      maxLengths[i] = 15 + Math.floor(Math.random() * 15)
     }
 
     // Text to display at the end
@@ -68,12 +73,17 @@ export default function MatrixAnimation() {
         ctx.fillText(text, x, y)
 
         // Send the drop back to the top randomly after it crosses the screen
-        if (drops[i] * 20 > canvas.height && Math.random() > 0.975) {
+        // or reaches its maximum length
+        const maxY = maxLengths[i] * 20
+        if ((drops[i] * 20 > canvas.height || drops[i] * 20 > maxY) && Math.random() > 0.975) {
           drops[i] = 0
+          // Randomize speed and max length again for variety
+          speeds[i] = 0.5 + Math.random() * 1.5
+          maxLengths[i] = 15 + Math.floor(Math.random() * 15)
         }
 
-        // Increment y coordinate
-        drops[i]++
+        // Increment y coordinate with varying speed
+        drops[i] += speeds[i]
       }
 
       // Check the current animation state using the ref
@@ -126,6 +136,8 @@ export default function MatrixAnimation() {
         // Add new drops if canvas got wider
         for (let i = drops.length; i < newColumns; i++) {
           drops.push(Math.random() * -100)
+          speeds.push(0.5 + Math.random() * 1.5)
+          maxLengths.push(15 + Math.floor(Math.random() * 15))
         }
       }
     }
@@ -146,8 +158,8 @@ export default function MatrixAnimation() {
         }`}
       >
         <div className="text-center px-4">
-          <h1 className="text-3xl md:text-4xl font-bold text-red-600 mb-4">Ruby on Rails Tech Blog</h1>
-          <p className="text-xl text-red-400">Insights from a Rails Tech Lead</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-red-600 mb-4">Vamos compartilhar conhecimento</h1>
+          <p className="text-xl text-red-400">Falando de tecnologia?</p>
         </div>
       </div>
     </>
