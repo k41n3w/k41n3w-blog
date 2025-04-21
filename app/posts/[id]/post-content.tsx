@@ -1,13 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { Heart, MessageSquare, Share2 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { incrementPostLikes } from "@/lib/supabase/actions"
 import parse from "html-react-parser"
 import { type DOMNode, type HTMLReactParserOptions, Element, domToReact } from "html-react-parser"
 import GiphyRenderer from "@/components/post/giphy-renderer"
 import CodeBlock from "@/components/post/code-block"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Facebook, Twitter, Linkedin, Link2, Share2, MessageSquare, Heart } from "lucide-react"
 
 interface PostContentProps {
   post: {
@@ -53,6 +54,73 @@ export default function PostContent({ post }: PostContentProps) {
     } finally {
       setIsLiking(false)
     }
+  }
+
+  const handleShare = async () => {
+    // URL atual do post
+    const postUrl = window.location.href
+
+    // Tentar usar a Web Share API se disponível
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: post.title,
+          text: `Confira este post: ${post.title}`,
+          url: postUrl,
+        })
+        return
+      } catch (error) {
+        console.error("Erro ao compartilhar:", error)
+        // Se o erro for de permissão negada ou cancelamento pelo usuário, não mostrar erro
+        // Continuar para as opções alternativas se a Web Share API falhar
+      }
+    }
+
+    // Se a Web Share API não estiver disponível, copiar o link para a área de transferência
+    try {
+      await navigator.clipboard.writeText(postUrl)
+      alert("Copiado com sucesso!")
+    } catch (error) {
+      console.error("Erro ao copiar link:", error)
+      // Fallback manual para copiar o link
+      const textArea = document.createElement("textarea")
+      textArea.value = postUrl
+      document.body.appendChild(textArea)
+      textArea.focus()
+      textArea.select()
+      try {
+        document.execCommand("copy")
+        alert("Copiado com sucesso!")
+      } catch (err) {
+        console.error("Falha ao copiar link:", err)
+        alert("Não foi possível copiar o link. Por favor, copie manualmente.")
+      }
+      document.body.removeChild(textArea)
+    }
+  }
+
+  // Função para compartilhar em redes sociais específicas
+  const shareToSocial = (platform: string) => {
+    const postUrl = encodeURIComponent(window.location.href)
+    const postTitle = encodeURIComponent(post.title)
+
+    let shareUrl = ""
+
+    switch (platform) {
+      case "facebook":
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${postUrl}`
+        break
+      case "twitter":
+        shareUrl = `https://twitter.com/intent/tweet?text=${postTitle}&url=${postUrl}`
+        break
+      case "linkedin":
+        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${postUrl}`
+        break
+      default:
+        return
+    }
+
+    window.open(shareUrl, "_blank", "width=600,height=400")
   }
 
   // Função para detectar a linguagem a partir de classes
@@ -216,10 +284,41 @@ export default function PostContent({ post }: PostContentProps) {
           <MessageSquare className="h-6 w-6" />
           <span>{post.comments}</span>
         </div>
-        <button className="flex items-center space-x-2 text-gray-400 hover:text-gray-300">
-          <Share2 className="h-6 w-6" />
-          <span>Share</span>
-        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="flex items-center space-x-2 text-gray-400 hover:text-gray-300">
+              <Share2 className="h-6 w-6" />
+              <span>Share</span>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="bg-gray-800 border-gray-700">
+            <DropdownMenuItem
+              className="flex items-center cursor-pointer hover:bg-gray-700"
+              onClick={() => shareToSocial("facebook")}
+            >
+              <Facebook className="h-4 w-4 mr-2 text-blue-500" />
+              <span>Facebook</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="flex items-center cursor-pointer hover:bg-gray-700"
+              onClick={() => shareToSocial("twitter")}
+            >
+              <Twitter className="h-4 w-4 mr-2 text-blue-400" />
+              <span>Twitter</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="flex items-center cursor-pointer hover:bg-gray-700"
+              onClick={() => shareToSocial("linkedin")}
+            >
+              <Linkedin className="h-4 w-4 mr-2 text-blue-600" />
+              <span>LinkedIn</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex items-center cursor-pointer hover:bg-gray-700" onClick={handleShare}>
+              <Link2 className="h-4 w-4 mr-2 text-gray-400" />
+              <span>Copiar Link</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-8">
