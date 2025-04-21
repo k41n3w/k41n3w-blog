@@ -137,6 +137,9 @@ export default function PostContent({ post }: PostContentProps) {
     replace: (domNode: DOMNode) => {
       // Tratar blocos de código
       if (domNode instanceof Element && domNode.name === "pre") {
+        // Check for codeContent attribute first (our custom attribute)
+        const codeContent = domNode.attribs["data-code-content"]
+
         // Verificar se há um elemento code dentro do pre
         const codeElement = domNode.children.find(
           (child): child is Element => child instanceof Element && child.name === "code",
@@ -147,28 +150,39 @@ export default function PostContent({ post }: PostContentProps) {
           const language = detectLanguage(codeElement.attribs.class || "")
 
           // Obter o conteúdo do código
-          let code = ""
-          if (codeElement.children.length > 0) {
-            // Se o conteúdo for texto simples
+          let code = codeContent || ""
+
+          // If we don't have codeContent attribute, try to extract from the code element
+          if (!code && codeElement.children.length > 0) {
+            // Try different methods to extract the code
             if (typeof codeElement.children[0].data === "string") {
               code = codeElement.children[0].data
-            }
-            // Se o conteúdo for HTML
-            else {
-              code = domToReact(codeElement.children, options) as string
-              // Converter para string se for um objeto React
-              if (typeof code !== "string") {
-                code = String(code)
-              }
+            } else {
+              // Extract from nested elements
+              code = codeElement.children
+                .map((child) => {
+                  if (typeof child.data === "string") {
+                    return child.data
+                  } else if (child instanceof Element && child.children) {
+                    return child.children
+                      .map((grandChild) => (typeof grandChild.data === "string" ? grandChild.data : ""))
+                      .join("")
+                  }
+                  return ""
+                })
+                .join("")
             }
           }
 
-          // Verificar se há um elemento de filename (geralmente um comentário ou div antes do pre)
+          // Verificar se há um elemento de filename
           let filename = ""
-          if (domNode.prev && domNode.prev instanceof Element && domNode.prev.attribs.class?.includes("filename")) {
-            filename = domNode.prev.children[0]?.data || ""
+          if (domNode.attribs["data-filename"]) {
+            filename = domNode.attribs["data-filename"]
+          } else if (domNode.attribs.filename) {
+            filename = domNode.attribs.filename
           }
 
+          console.log("Rendering code block in post view:", { language, filename, code })
           return <CodeBlock code={code} language={language} filename={filename} />
         }
       }

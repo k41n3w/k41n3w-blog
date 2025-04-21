@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { EditorContent, useEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import Heading from "@tiptap/extension-heading"
@@ -49,8 +49,6 @@ import parse from "html-react-parser"
 import { Element } from "html-react-parser"
 import GiphyRenderer from "@/components/post/giphy-renderer"
 import { CustomCodeBlock } from "@/lib/editor/extensions/code-extensions"
-// Substituir a importação do CodeBlock padrão
-// import CodeBlock from "@tiptap/extension-code-block"
 import CodeBlock from "@/components/post/code-block"
 
 interface RichTextEditorProps {
@@ -62,13 +60,23 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
   const [isMounted, setIsMounted] = useState(false)
   const [selectedColor, setSelectedColor] = useState("#000000")
   const [isPreviewMode, setIsPreviewMode] = useState(false)
+  const [editorContent, setEditorContent] = useState(value || "")
+  const editorInstanceRef = useRef(null)
+  const previewModeRef = useRef(isPreviewMode)
+  const [editorKey, setEditorKey] = useState(0) // Used to force re-render editor if needed
 
+  // Update ref when preview mode changes
+  useEffect(() => {
+    previewModeRef.current = isPreviewMode
+  }, [isPreviewMode])
+
+  // Create editor only once
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        codeBlock: false, // Desabilitar o CodeBlock padrão
+        codeBlock: false, // Disable default code block
       }),
-      CustomCodeBlock, // Usar nossa extensão personalizada
+      CustomCodeBlock,
       Heading.configure({
         levels: [1, 2, 3],
       }),
@@ -83,7 +91,6 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
           class: "mx-auto rounded-lg max-w-full",
         },
       }),
-      CodeBlock,
       Placeholder.configure({
         placeholder: "Comece a escrever seu conteúdo aqui...",
       }),
@@ -105,9 +112,18 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
       HorizontalRule,
       GiphyNode,
     ],
-    content: value,
+    content: value || "",
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML())
+      try {
+        const html = editor.getHTML()
+        setEditorContent(html)
+        onChange(html)
+
+        // Log for debugging
+        console.log("Editor content updated:", html)
+      } catch (error) {
+        console.error("Error updating editor content:", error)
+      }
     },
     editorProps: {
       attributes: {
@@ -116,51 +132,51 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
     },
   })
 
+  // Store editor instance in ref
+  useEffect(() => {
+    if (editor) {
+      editorInstanceRef.current = editor
+    }
+  }, [editor])
+
   useEffect(() => {
     setIsMounted(true)
   }, [])
 
-  if (!isMounted) {
-    return null
-  }
+  // Toggle preview mode safely
+  const togglePreviewMode = useCallback(() => {
+    setIsPreviewMode((prev) => !prev)
+  }, [])
 
-  const setLink = () => {
+  // Editor functions
+  const setLink = useCallback(() => {
     if (!editor) return
 
     const previousUrl = editor.getAttributes("link").href
     const url = window.prompt("URL", previousUrl)
 
-    // cancelled
-    if (url === null) {
-      return
-    }
-
-    // empty
+    if (url === null) return
     if (url === "") {
       editor.chain().focus().extendMarkRange("link").unsetLink().run()
       return
     }
 
-    // update link
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run()
-  }
+  }, [editor])
 
-  const addImage = () => {
+  const addImage = useCallback(() => {
     if (!editor) return
 
     const url = window.prompt("URL da imagem")
-
     if (url) {
-      // Use the original URL when editing, it will be proxied when displayed
       editor.chain().focus().setImage({ src: url }).run()
     }
-  }
+  }, [editor])
 
-  const addGiphy = () => {
+  const addGiphy = useCallback(() => {
     if (!editor) return
 
     const url = window.prompt("URL do GIF do Giphy (ex: https://giphy.com/gifs/ID)")
-
     if (url) {
       const giphyId = extractGiphyId(url)
       if (giphyId) {
@@ -178,33 +194,39 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
         )
       }
     }
-  }
+  }, [editor])
 
-  const setTextColor = () => {
+  const setTextColor = useCallback(() => {
     if (!editor) return
 
     const color = prompt("Digite uma cor (ex: #FF0000, red, rgb(255,0,0))", selectedColor)
-
     if (color) {
       setSelectedColor(color)
       editor.chain().focus().setColor(color).run()
     }
-  }
+  }, [editor, selectedColor])
 
-  const clearFormatting = () => {
+  const clearFormatting = useCallback(() => {
     if (!editor) return
     editor.chain().focus().unsetAllMarks().run()
+  }, [editor])
+
+  if (!isMounted) {
+    return null
   }
 
-  const togglePreviewMode = () => {
-    setIsPreviewMode(!isPreviewMode)
+  // Helper function to detect language from class
+  const detectLanguage = (className: string): string => {
+    if (!className) return ""
+    const match = className.match(/language-(\w+)/)
+    return match ? match[1] : ""
   }
 
   return (
     <div className="border border-gray-700 rounded-md overflow-hidden flex flex-col">
-      {/* Barra de ferramentas fixa */}
+      {/* Toolbar */}
       <div className="bg-gray-900 p-2 border-b border-gray-700 flex flex-wrap gap-1 sticky top-0 z-10">
-        {/* Botão de alternar entre edição e visualização */}
+        {/* Toggle preview/edit mode */}
         <div className="flex items-center gap-1 mr-2 border-r border-gray-700 pr-2">
           <Tooltip content={<p>{isPreviewMode ? "Modo de edição" : "Modo de visualização"}</p>}>
             <Button
@@ -222,7 +244,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
 
         {!isPreviewMode && (
           <>
-            {/* Grupo de formatação de texto */}
+            {/* Text formatting */}
             <div className="flex items-center gap-1 mr-2 border-r border-gray-700 pr-2">
               <Tooltip content={<p>Negrito</p>}>
                 <Button
@@ -285,7 +307,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
               </Tooltip>
             </div>
 
-            {/* Grupo de cabeçalhos */}
+            {/* Headings */}
             <div className="flex items-center gap-1 mr-2 border-r border-gray-700 pr-2">
               <Tooltip content={<p>Título 1</p>}>
                 <Button
@@ -324,7 +346,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
               </Tooltip>
             </div>
 
-            {/* Grupo de alinhamento */}
+            {/* Alignment */}
             <div className="flex items-center gap-1 mr-2 border-r border-gray-700 pr-2">
               <Tooltip content={<p>Alinhar à esquerda</p>}>
                 <Button
@@ -363,7 +385,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
               </Tooltip>
             </div>
 
-            {/* Grupo de listas */}
+            {/* Lists */}
             <div className="flex items-center gap-1 mr-2 border-r border-gray-700 pr-2">
               <Tooltip content={<p>Lista com marcadores</p>}>
                 <Button
@@ -390,7 +412,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
               </Tooltip>
             </div>
 
-            {/* Grupo de elementos especiais */}
+            {/* Special elements */}
             <div className="flex items-center gap-1 mr-2 border-r border-gray-700 pr-2">
               <Tooltip content={<p>Citação</p>}>
                 <Button
@@ -410,7 +432,26 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
                   size="sm"
                   variant="ghost"
                   className={`h-8 px-2 ${editor?.isActive("codeBlock") ? "bg-gray-700" : ""}`}
-                  onClick={() => editor?.chain().focus().toggleCodeBlock().run()}
+                  onClick={() => {
+                    try {
+                      if (editor) {
+                        if (editor.isActive("codeBlock")) {
+                          editor.chain().focus().setParagraph().run()
+                        } else {
+                          editor
+                            .chain()
+                            .focus()
+                            .setCodeBlock({
+                              language: "ruby",
+                              codeContent: "", // Initialize with empty content
+                            })
+                            .run()
+                        }
+                      }
+                    } catch (error) {
+                      console.error("Error toggling code block:", error)
+                    }
+                  }}
                 >
                   <Code className="h-4 w-4" />
                 </Button>
@@ -429,7 +470,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
               </Tooltip>
             </div>
 
-            {/* Grupo de links e imagens */}
+            {/* Links and images */}
             <div className="flex items-center gap-1 mr-2 border-r border-gray-700 pr-2">
               <Tooltip content={<p>Inserir link</p>}>
                 <Button
@@ -449,7 +490,6 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
                 </Button>
               </Tooltip>
 
-              {/* Botão para Giphy */}
               <Tooltip content={<p>Inserir GIF do Giphy</p>}>
                 <Button type="button" size="sm" variant="ghost" className="h-8 px-2" onClick={addGiphy}>
                   <Smile className="h-4 w-4" />
@@ -457,7 +497,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
               </Tooltip>
             </div>
 
-            {/* Grupo de desfazer/refazer */}
+            {/* Undo/redo */}
             <div className="flex items-center gap-1">
               <Tooltip content={<p>Desfazer</p>}>
                 <Button
@@ -489,61 +529,59 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
         )}
       </div>
 
-      {/* Área de edição ou visualização com altura fixa e scroll interno */}
+      {/* Editor/Preview area */}
       <div className="bg-gray-800 h-[500px] overflow-y-auto">
         {isPreviewMode ? (
           <div className="prose prose-invert prose-red max-w-none p-4 editor-content">
-            {parse(editor?.getHTML() || "", {
+            {parse(editorContent || "", {
               replace: (domNode) => {
-                if (domNode instanceof Element && domNode.name === "img") {
-                  const { src, alt, class: className } = domNode.attribs
+                try {
+                  // Handle code blocks
+                  if (domNode instanceof Element && domNode.name === "pre") {
+                    // Check for code element inside pre
+                    const codeElement = domNode.children.find(
+                      (child): child is Element => child instanceof Element && child.name === "code",
+                    )
 
-                  // Verificar se é um GIF do Giphy
-                  const isGiphy =
-                    src?.includes("giphy.com") ||
-                    domNode.parent?.attribs?.class?.includes("giphy") ||
-                    domNode.parent?.parent?.attribs?.class?.includes("giphy")
+                    if (codeElement) {
+                      // Detect language from classes
+                      const language = detectLanguage(codeElement.attribs.class || "")
 
-                  if (isGiphy) {
-                    return <GiphyRenderer src={src} alt={alt} />
-                  }
-                }
+                      // Get code content from data attribute or text content
+                      let code = domNode.attribs["data-code-content"] || ""
 
-                // Verificar se é um contêiner de Giphy
-                if (
-                  domNode instanceof Element &&
-                  (domNode.attribs.class?.includes("giphy-embed-container") ||
-                    domNode.attribs.class?.includes("giphy-embed-wrapper"))
-                ) {
-                  // Procurar pelo ID do Giphy nos atributos
-                  const giphyId = domNode.attribs["data-giphy-id"]
+                      if (!code && codeElement.children.length > 0) {
+                        if (typeof codeElement.children[0].data === "string") {
+                          code = codeElement.children[0].data
+                        }
+                      }
 
-                  // Se encontrarmos um ID, usar o componente GiphyRenderer
-                  if (giphyId) {
-                    return <GiphyRenderer giphyId={giphyId} />
-                  }
-                }
+                      // Get filename from attributes
+                      let filename = ""
+                      if (domNode.attribs["data-filename"]) {
+                        filename = domNode.attribs["data-filename"]
+                      }
 
-                // Tratar blocos de código
-                if (domNode instanceof Element && domNode.name === "pre") {
-                  // Verificar se há um elemento code dentro do pre
-                  const codeElement = domNode.children.find(
-                    (child): child is Element => child instanceof Element && child.name === "code",
-                  )
-
-                  if (codeElement) {
-                    // Detectar a linguagem a partir das classes
-                    const language = codeElement.attribs.class?.replace("language-", "") || ""
-
-                    // Obter o conteúdo do código
-                    let code = ""
-                    if (codeElement.children.length > 0 && typeof codeElement.children[0].data === "string") {
-                      code = codeElement.children[0].data
+                      return <CodeBlock code={code} language={language} filename={filename} />
                     }
-
-                    return <CodeBlock code={code} language={language} />
                   }
+
+                  // Handle Giphy images
+                  if (domNode instanceof Element && domNode.name === "img") {
+                    const { src, alt, class: className } = domNode.attribs
+                    const isGiphy =
+                      src?.includes("giphy.com") ||
+                      domNode.parent?.attribs?.class?.includes("giphy") ||
+                      domNode.parent?.parent?.attribs?.class?.includes("giphy")
+
+                    if (isGiphy) {
+                      return <GiphyRenderer src={src} alt={alt} />
+                    }
+                  }
+                } catch (error) {
+                  console.error("Error in HTML parsing:", error)
                 }
+                return undefined
               },
             })}
           </div>

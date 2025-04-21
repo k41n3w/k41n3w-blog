@@ -165,6 +165,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return <>{children}</>
   }
 
-  // Caso contrário, não mostrar nada (o redirecionamento já foi iniciado)
+  // Caso contrário, não mostrar nada (o redirecionamento j�� foi iniciado)
   return null
 }

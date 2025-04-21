@@ -1,4 +1,4 @@
-import { Node, mergeAttributes } from "@tiptap/core"
+import { Node } from "@tiptap/core"
 import { ReactNodeViewRenderer } from "@tiptap/react"
 import CodeBlockComponent from "@/components/admin/embeds/code-block-component"
 
@@ -8,26 +8,29 @@ export const CustomCodeBlock = Node.create({
   content: "text*",
   marks: "",
   defining: true,
+  isolating: true,
+
+  addOptions() {
+    return {
+      languageClassPrefix: "language-",
+    }
+  },
+
   addAttributes() {
     return {
       language: {
         default: "ruby",
-        parseHTML: (element) => {
-          const className = element.getAttribute("class") || ""
-          const match = className.match(/language-(\w+)/)
-          return match ? match[1] : "ruby"
-        },
-        renderHTML: (attributes) => {
-          return {
-            class: `language-${attributes.language || "ruby"}`,
-          }
-        },
       },
       filename: {
         default: "",
       },
+      // Add a direct content attribute to ensure code is saved
+      codeContent: {
+        default: "",
+      },
     }
   },
+
   parseHTML() {
     return [
       {
@@ -36,10 +39,38 @@ export const CustomCodeBlock = Node.create({
       },
     ]
   },
-  renderHTML({ HTMLAttributes, node }) {
-    return ["pre", { class: "code-block" }, ["code", mergeAttributes(HTMLAttributes), 0]]
+
+  renderHTML({ HTMLAttributes }) {
+    // Use the stored codeContent attribute if available
+    const content = HTMLAttributes.codeContent || ""
+
+    // Create the HTML structure
+    return [
+      "pre",
+      { "data-filename": HTMLAttributes.filename || null },
+      ["code", { class: `language-${HTMLAttributes.language || "ruby"}` }, content],
+    ]
   },
+
   addNodeView() {
     return ReactNodeViewRenderer(CodeBlockComponent)
+  },
+
+  addCommands() {
+    return {
+      setCodeBlock:
+        (attributes = {}) =>
+        ({ commands }) => {
+          return commands.setNode(this.name, attributes)
+        },
+      toggleCodeBlock:
+        (attributes = {}) =>
+        ({ commands, editor }) => {
+          if (editor.isActive(this.name)) {
+            return commands.setParagraph()
+          }
+          return commands.setCodeBlock(attributes)
+        },
+    }
   },
 })

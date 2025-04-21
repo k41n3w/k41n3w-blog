@@ -14,13 +14,13 @@ export default function CodeBlock({ code, language, filename }: CodeBlockProps) 
   const codeRef = useRef<HTMLElement>(null)
   const [copied, setCopied] = useState(false)
 
-  // Mapear nomes de linguagem comuns para os identificadores do highlight.js
+  // Map common language names to highlight.js identifiers
   const languageMap: Record<string, string> = {
     rb: "ruby",
     js: "javascript",
     ts: "typescript",
-    jsx: "javascript", // highlight.js usa javascript para jsx
-    tsx: "typescript", // highlight.js usa typescript para tsx
+    jsx: "javascript",
+    tsx: "typescript",
     css: "css",
     scss: "scss",
     sh: "bash",
@@ -32,42 +32,43 @@ export default function CodeBlock({ code, language, filename }: CodeBlockProps) 
     sql: "sql",
   }
 
-  // Obter o identificador de linguagem correto
+  // Get the correct language identifier
   const highlightLanguage = languageMap[language?.toLowerCase()] || language || "ruby"
+
+  // Log for debugging
+  console.log("CodeBlock rendering with:", { code, language, filename })
 
   useEffect(() => {
     // Highlight the code when the component mounts
-    if (codeRef.current) {
-      hljs.highlightElement(codeRef.current)
-
-      // Remover qualquer elemento mark que possa estar causando o realce em preto
-      const markElements = codeRef.current.querySelectorAll("mark")
-      markElements.forEach((mark) => {
-        const parent = mark.parentNode
-        if (parent) {
-          // Substituir o elemento mark pelo seu conteúdo
-          while (mark.firstChild) {
-            parent.insertBefore(mark.firstChild, mark)
-          }
-          parent.removeChild(mark)
-        }
-      })
-
-      // Remover qualquer background de spans dentro do código
-      const spans = codeRef.current.querySelectorAll("span")
-      spans.forEach((span) => {
-        span.style.backgroundColor = "transparent"
-      })
+    if (codeRef.current && code) {
+      try {
+        hljs.highlightElement(codeRef.current)
+      } catch (error) {
+        console.error("Error highlighting code:", error)
+      }
     }
   }, [code, language])
 
   const handleCopy = () => {
-    if (navigator.clipboard) {
+    if (navigator.clipboard && code) {
       navigator.clipboard.writeText(code).then(() => {
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
       })
     }
+  }
+
+  // If there's no code, show a friendly message
+  if (!code || code.trim() === "") {
+    return (
+      <div className="code-block-wrapper my-6 rounded-md overflow-hidden w-full max-w-full">
+        <div className="code-block-header px-4 py-2 flex justify-between items-center bg-gray-800 border-b border-gray-700 flex-wrap">
+          {filename && <span className="text-sm text-gray-300 break-all">{filename}</span>}
+          {!filename && <span className="text-xs text-gray-400">{highlightLanguage}</span>}
+        </div>
+        <div className="bg-gray-900 p-4 text-gray-400 text-sm">// Código não disponível</div>
+      </div>
+    )
   }
 
   return (
@@ -87,7 +88,7 @@ export default function CodeBlock({ code, language, filename }: CodeBlockProps) 
       </div>
       <div className="bg-gray-900 p-0 m-0 w-full max-w-full overflow-x-auto">
         <pre className="p-4 m-0 overflow-x-auto w-full">
-          <code ref={codeRef} className={`language-${highlightLanguage} no-highlight-marks`}>
+          <code ref={codeRef} className={`language-${highlightLanguage}`}>
             {code}
           </code>
         </pre>

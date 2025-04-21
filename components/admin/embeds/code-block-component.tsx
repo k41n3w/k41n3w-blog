@@ -3,16 +3,18 @@
 import type React from "react"
 
 import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react"
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Code } from "lucide-react"
 
-export default function CodeBlockComponent({ node, updateAttributes, extension, getPos, editor }: NodeViewProps) {
+export default function CodeBlockComponent({ node, updateAttributes, editor }: NodeViewProps) {
   const [language, setLanguage] = useState(node.attrs.language || "ruby")
   const [filename, setFilename] = useState(node.attrs.filename || "")
   const [showOptions, setShowOptions] = useState(false)
+  const [codeContent, setCodeContent] = useState(node.attrs.codeContent || "")
+  const codeEditorRef = useRef<HTMLTextAreaElement>(null)
 
   const languages = [
     { value: "ruby", label: "Ruby" },
@@ -31,6 +33,20 @@ export default function CodeBlockComponent({ node, updateAttributes, extension, 
     { value: "plaintext", label: "Plain Text" },
   ]
 
+  // Initialize the code content from the node
+  useEffect(() => {
+    // If we have stored codeContent in the node attributes, use that
+    if (node.attrs.codeContent) {
+      setCodeContent(node.attrs.codeContent)
+    }
+    // Otherwise try to get it from the node's text content
+    else if (node.textContent) {
+      setCodeContent(node.textContent)
+      // Also update the node attribute
+      updateAttributes({ codeContent: node.textContent })
+    }
+  }, [node, updateAttributes])
+
   const handleLanguageChange = (value: string) => {
     setLanguage(value)
     updateAttributes({ language: value })
@@ -42,6 +58,43 @@ export default function CodeBlockComponent({ node, updateAttributes, extension, 
     updateAttributes({ filename: value })
   }
 
+  const handleCodeChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newContent = e.target.value
+    setCodeContent(newContent)
+
+    // Update both the node's text content and the codeContent attribute
+    updateAttributes({ codeContent: newContent })
+
+    // Also update the node's content using a transaction
+    if (editor) {
+      try {
+        const { state, dispatch } = editor.view
+        const { tr } = state
+
+        // Find the position of this node
+        const pos = editor.state.doc.resolve(0)
+        let foundPos = null
+
+        state.doc.descendants((node, pos) => {
+          if (node === node && foundPos === null) {
+            foundPos = pos
+            return false
+          }
+          return true
+        })
+
+        if (foundPos !== null) {
+          // Replace the content with a text node containing the new content
+          const textNode = state.schema.text(newContent)
+          tr.replaceWith(foundPos + 1, foundPos + node.nodeSize - 1, textNode)
+          dispatch(tr)
+        }
+      } catch (error) {
+        console.error("Error updating node content:", error)
+      }
+    }
+  }
+
   return (
     <NodeViewWrapper className="code-block-wrapper my-4 rounded-md overflow-hidden border border-gray-700">
       <div className="bg-gray-800 p-2 flex justify-between items-center">
@@ -49,7 +102,16 @@ export default function CodeBlockComponent({ node, updateAttributes, extension, 
           <Code className="h-4 w-4 text-gray-400 mr-2" />
           <span className="text-sm text-gray-300">{filename ? filename : `Código ${language}`}</span>
         </div>
-        <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={() => setShowOptions(!showOptions)}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-6 px-2 text-xs"
+          onClick={(e) => {
+            e.preventDefault()
+            setShowOptions(!showOptions)
+          }}
+          type="button"
+        >
           {showOptions ? "Ocultar opções" : "Opções"}
         </Button>
       </div>
@@ -83,11 +145,15 @@ export default function CodeBlockComponent({ node, updateAttributes, extension, 
         </div>
       )}
 
-      <pre className="bg-gray-900 p-0 m-0 rounded-none">
-        <code className={`language-${language}`}>
-          <div contentEditable="true" className="p-4 outline-none" />
-        </code>
-      </pre>
+      {/* Use a textarea instead of contentEditable div for more reliable content handling */}
+      <textarea
+        ref={codeEditorRef}
+        value={codeContent}
+        onChange={handleCodeChange}
+        className="bg-gray-900 p-4 min-h-[100px] w-full outline-none text-gray-300 font-mono text-sm resize-y"
+        spellCheck="false"
+        data-gramm="false"
+      />
     </NodeViewWrapper>
   )
 }
