@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, Heart } from "lucide-react"
+import { ArrowRight, Heart, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { createClient } from "@/lib/supabase/server"
@@ -137,8 +137,12 @@ export default async function Home() {
       <JsonLd data={blogPostingListSchema} />
 
       {/* Matrix Animation Header - Increased height */}
-      <div className="relative w-full h-[500px]">
+      <div className="relative w-full h-[700px]">
         <MatrixAnimation />
+        {/* Seta vermelha animada */}
+        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <ChevronDown size={48} className="text-red-600" />
+        </div>
       </div>
 
       {/* Latest Posts Section - Added more padding at the top */}
