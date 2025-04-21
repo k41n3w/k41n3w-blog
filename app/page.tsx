@@ -145,8 +145,8 @@ export default async function Home() {
       <JsonLd data={organizationSchema} />
       <JsonLd data={blogPostingListSchema} />
 
-      {/* Matrix Animation Header */}
-      <div className="relative w-full h-[400px]">
+      {/* Matrix Animation Header - aumentando a altura para 500px */}
+      <div className="relative w-full h-[650px]">
         <MatrixAnimation />
       </div>
 
