@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { createComment, incrementCommentLikes } from "@/lib/supabase/actions"
 import { useToast } from "@/hooks/use-toast"
+import CommentSubmissionModal from "@/components/post/comment-submission-modal"
 
 interface Comment {
   id: string
@@ -29,11 +30,19 @@ export default function CommentSection({ postId, comments: initialComments }: Co
   const [commentText, setCommentText] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [likedComments, setLikedComments] = useState<Record<string, boolean>>({})
+  const [showSubmissionModal, setShowSubmissionModal] = useState(false)
   const { toast } = useToast()
 
   const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!author.trim() || !commentText.trim()) return
+    if (!author.trim() || !commentText.trim()) {
+      toast({
+        title: "Informação faltando",
+        description: "Por favor, forneça seu nome e comentário.",
+        variant: "destructive",
+      })
+      return
+    }
 
     setIsSubmitting(true)
 
@@ -50,19 +59,17 @@ export default function CommentSection({ postId, comments: initialComments }: Co
         throw new Error(result.error)
       }
 
-      toast({
-        title: "Comment submitted",
-        description: "Your comment has been submitted and is awaiting approval.",
-      })
-
       // Clear form
       setAuthor("")
       setEmail("")
       setCommentText("")
-    } catch (error) {
+
+      // Show the modal instead of a toast
+      setShowSubmissionModal(true)
+    } catch (error: any) {
       toast({
-        title: "Error",
-        description: "Failed to submit comment. Please try again.",
+        title: "Erro",
+        description: error.message || "Falha ao enviar comentário. Por favor, tente novamente.",
         variant: "destructive",
       })
     } finally {
@@ -122,7 +129,7 @@ export default function CommentSection({ postId, comments: initialComments }: Co
                 value={author}
                 onChange={(e) => setAuthor(e.target.value)}
                 required
-                className="w-full bg-gray-900 border-gray-800 focus:border-red-500 rounded-md p-2"
+                className="w-full bg-gray-900 border border-gray-800 focus:border-red-500 rounded-md p-2"
               />
             </div>
             <div>
@@ -134,7 +141,7 @@ export default function CommentSection({ postId, comments: initialComments }: Co
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-gray-900 border-gray-800 focus:border-red-500 rounded-md p-2"
+                className="w-full bg-gray-900 border border-gray-800 focus:border-red-500 rounded-md p-2"
               />
             </div>
           </div>
@@ -145,14 +152,14 @@ export default function CommentSection({ postId, comments: initialComments }: Co
             <Textarea
               id="comment"
               placeholder="Add a comment..."
-              className="bg-gray-900 border-gray-800 focus:border-red-500"
+              className="bg-gray-900 border border-gray-800 focus:border-red-500"
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               required
             />
           </div>
           <Button type="submit" className="bg-red-600 hover:bg-red-700" disabled={isSubmitting}>
-            {isSubmitting ? "Submitting..." : "Post Comment"}
+            {isSubmitting ? "Enviando..." : "Enviar Comentário"}
           </Button>
         </form>
       </div>
@@ -181,6 +188,9 @@ export default function CommentSection({ postId, comments: initialComments }: Co
           ))
         )}
       </div>
+
+      {/* Comment Submission Modal */}
+      <CommentSubmissionModal isOpen={showSubmissionModal} onClose={() => setShowSubmissionModal(false)} />
     </section>
   )
 }
