@@ -201,15 +201,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Admin Login Button */}
-      <div className="fixed top-4 right-4 z-10">
-        <Link href="/admin/login">
-          <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-900/20">
-            Admin Login
-          </Button>
-        </Link>
-      </div>
-
       {/* Footer */}
       <Footer />
     </div>

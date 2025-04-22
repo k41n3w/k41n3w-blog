@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import Footer from "@/components/layout/footer"
 import AnimatedTimeline from "@/components/about/animated-timeline"
 import AnimatedProfile from "@/components/about/animated-profile"
@@ -46,15 +45,10 @@ export default function AboutPage() {
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
       <header className="bg-gray-900 border-b border-gray-800 py-4">
-        <div className="max-w-6xl mx-auto px-4 flex justify-between items-center">
+        <div className="max-w-6xl mx-auto px-4">
           <Link href="/" className="flex items-center text-red-500 hover:text-red-400">
             <ArrowLeft className="mr-2 h-5 w-5" />
             Voltar para home
-          </Link>
-          <Link href="/admin/login">
-            <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-900/20">
-              Admin Login
-            </Button>
           </Link>
         </div>
       </header>
