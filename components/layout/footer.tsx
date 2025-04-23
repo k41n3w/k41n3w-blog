@@ -75,15 +75,12 @@ export default function Footer() {
                 type="email"
                 placeholder="Your email"
                 disabled
-                className="bg-gray-800 text-white px-4 py-2 rounded-l-md focus:outline-none focus:ring-1 focus:ring-red-500 border-0 opacity-70 flex-grow min-w-0"
+                className="bg-gray-800 text-white px-4 py-2 focus:outline-none focus:ring-1 focus:ring-red-500 border-0 opacity-70 flex-grow min-w-0"
               />
               <TooltipProvider>
                 <TooltipRoot>
                   <TooltipTrigger asChild>
-                    <Button
-                      className="bg-red-600 hover:bg-red-700 rounded-l-none opacity-70 cursor-not-allowed"
-                      disabled
-                    >
+                    <Button className="bg-red-600 hover:bg-red-700 opacity-70 cursor-not-allowed" disabled>
                       Subscribe
                     </Button>
                   </TooltipTrigger>
@@ -112,9 +109,7 @@ export default function Footer() {
                 <TooltipProvider>
                   <TooltipRoot>
                     <TooltipTrigger asChild>
-                      <div className="bg-gray-800 p-3 rounded-full hover:bg-gray-700 transition-colors">
-                        {social.icon}
-                      </div>
+                      <div className="bg-gray-800 p-3 hover:bg-gray-700 transition-colors">{social.icon}</div>
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>{social.name}</p>
