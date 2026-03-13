@@ -9,16 +9,16 @@ import Footer from "@/components/layout/footer"
 import { JsonLd } from "@/components/seo/json-ld"
 import { siteConfig } from "@/lib/seo/metadata"
 
-// Configuração para geração estática com revalidação
-export const dynamic = "force-static"
-export const revalidate = 3600 // Revalidar a cada hora
+// Forçar renderização dinâmica sem cache
+export const dynamic = "force-dynamic"
+export const revalidate = 0
 
 export default async function Home() {
   const supabase = createClient()
 
   // Buscar posts publicados
-  let posts = []
-  let error = null
+  let posts: any[] = []
+  let error: any = null
 
   try {
     const { data, error: fetchError } = await supabase
@@ -37,13 +37,11 @@ export default async function Home() {
       .limit(6)
 
     if (fetchError) {
-      console.error("Error fetching posts:", fetchError)
       error = fetchError
     } else {
       posts = data || []
     }
-  } catch (e) {
-    console.error("Exception fetching posts:", e)
+  } catch (e: any) {
     error = e
   }
 
