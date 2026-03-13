@@ -3,7 +3,8 @@ import { createClient } from "@/lib/supabase/server"
 import PostForm from "@/components/admin/post-form"
 import { TABLES } from "@/lib/supabase/config"
 
-export default async function EditPostPage({ params }: { params: { id: string } }) {
+export default async function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const supabase = await createClient()
 
   // Verificar se o usuário está autenticado
@@ -16,7 +17,7 @@ export default async function EditPostPage({ params }: { params: { id: string } 
   }
 
   // Buscar o post
-  const { data: post, error } = await supabase.from(TABLES.POSTS).select("*").eq("id", params.id).single()
+  const { data: post, error } = await supabase.from(TABLES.POSTS).select("*").eq("id", id).single()
 
   if (error || !post) {
     console.error("Error fetching post:", error)
@@ -24,7 +25,7 @@ export default async function EditPostPage({ params }: { params: { id: string } 
   }
 
   // Buscar as tags do post
-  const { data: postTags = [] } = await supabase.from(TABLES.POST_TAGS).select("tag_id").eq("post_id", params.id)
+  const { data: postTags = [] } = await supabase.from(TABLES.POST_TAGS).select("tag_id").eq("post_id", id)
 
   // Buscar os nomes das tags
   let tags: string[] = []

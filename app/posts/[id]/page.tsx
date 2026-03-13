@@ -10,17 +10,17 @@ import Footer from "@/components/layout/footer"
 import { generatePostMetadata } from "@/lib/seo/metadata"
 import { JsonLd } from "@/components/seo/json-ld"
 
-// Configuração para geração estática com revalidação
-export const dynamic = "force-static"
-export const revalidate = 1800 // Revalidar a cada 30 minutos
+// ISR: renderiza na primeira visita e cacheia por 30 minutos
+export const revalidate = 1800
 
 // Função para gerar metadados estáticos
-export async function generateMetadata({ params }: { params: { id: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const supabase = await createClient()
   const { data: post } = await supabase
     .from(TABLES.POSTS)
     .select("title, excerpt, content, created_at")
-    .eq("id", params.id)
+    .eq("id", id)
     .single()
 
   if (!post) {
@@ -31,29 +31,30 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   }
 
   // Buscar tags do post
-  const { data: postTags = [] } = await supabase.from(TABLES.POST_TAGS).select("tag_id").eq("post_id", params.id)
+  const { data: postTagsRaw } = await supabase.from(TABLES.POST_TAGS).select("tag_id").eq("post_id", id)
+  const metaPostTags = postTagsRaw ?? []
 
   // Obter nomes das tags
   let tags: string[] = []
-  if (postTags.length > 0) {
-    const tagIds = postTags.map((pt) => pt.tag_id)
-    const { data: tagData = [] } = await supabase.from(TABLES.TAGS).select("name").in("id", tagIds)
-
-    tags = tagData.map((t) => t.name)
+  if (metaPostTags.length > 0) {
+    const tagIds = metaPostTags.map((pt) => pt.tag_id)
+    const { data: tagData } = await supabase.from(TABLES.TAGS).select("name").in("id", tagIds)
+    tags = (tagData ?? []).map((t) => t.name)
   }
 
   return generatePostMetadata({
     ...post,
-    id: params.id,
+    id,
     tags,
   })
 }
 
-export default async function PostPage({ params }: { params: { id: string } }) {
+export default async function PostPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const supabase = await createClient()
 
   // Buscar post sem joins
-  const { data: post, error: postError } = await supabase.from(TABLES.POSTS).select("*").eq("id", params.id).single()
+  const { data: post, error: postError } = await supabase.from(TABLES.POSTS).select("*").eq("id", id).single()
 
   if (postError) {
     console.error("Error fetching post:", postError)
@@ -61,32 +62,33 @@ export default async function PostPage({ params }: { params: { id: string } }) {
   }
 
   if (!post) {
-    console.error("Post not found with ID:", params.id)
+    console.error("Post not found with ID:", id)
     notFound()
   }
 
   // Buscar comentários separadamente
-  const { data: comments = [] } = await supabase
+  const { data: commentsData } = await supabase
     .from(TABLES.COMMENTS)
     .select("*")
-    .eq("post_id", params.id)
+    .eq("post_id", id)
     .eq("status", "Approved")
+  const comments = commentsData ?? []
 
   // Buscar tags separadamente
-  const { data: postTags = [] } = await supabase.from(TABLES.POST_TAGS).select("tag_id").eq("post_id", params.id)
+  const { data: postTagsData } = await supabase.from(TABLES.POST_TAGS).select("tag_id").eq("post_id", id)
+  const postTags = postTagsData ?? []
 
   // Obter nomes das tags se tivermos IDs de tags
   let tags: string[] = []
   if (postTags.length > 0) {
     const tagIds = postTags.map((pt) => pt.tag_id)
-    const { data: tagData = [] } = await supabase.from(TABLES.TAGS).select("name").in("id", tagIds)
-
-    tags = tagData.map((t) => t.name)
+    const { data: tagData } = await supabase.from(TABLES.TAGS).select("name").in("id", tagIds)
+    tags = (tagData ?? []).map((t) => t.name)
   }
 
   // Tentar incrementar a contagem de visualizações, mas não falhar se não funcionar
   try {
-    await supabase.rpc("increment_post_views", { post_id: params.id })
+    await supabase.rpc("increment_post_views", { post_id: id })
   } catch (error) {
     console.error("Error incrementing views:", error)
   }
@@ -112,7 +114,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
   }
 
   // Preparar dados para o Schema.org usando URLs relativas
-  const postUrl = `/posts/${params.id}`
+  const postUrl = `/posts/${id}`
   const authorName = "Caio Ramos"
 
   return (
