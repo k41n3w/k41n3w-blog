@@ -17,10 +17,13 @@ export default async function Home() {
   const supabase = createClient()
 
   // Buscar posts publicados
-  let posts = []
-  let error = null
+  let posts: any[] = []
+  let error: any = null
 
   try {
+    console.log("[v0] Fetching posts from Supabase...")
+    console.log("[v0] Table name:", TABLES.POSTS)
+    
     const { data, error: fetchError } = await supabase
       .from(TABLES.POSTS)
       .select(`
@@ -30,20 +33,25 @@ export default async function Home() {
        created_at,
        views,
        likes,
-       author_id
+       author_id,
+       status
      `)
       .eq("status", "Published")
       .order("created_at", { ascending: false })
       .limit(6)
 
+    console.log("[v0] Supabase response - data:", data?.length || 0, "posts")
+    console.log("[v0] Supabase response - error:", fetchError)
+
     if (fetchError) {
-      console.error("Error fetching posts:", fetchError)
+      console.error("[v0] Error fetching posts:", fetchError)
       error = fetchError
     } else {
       posts = data || []
+      console.log("[v0] Posts fetched successfully:", posts.map(p => ({ id: p.id, title: p.title, status: p.status })))
     }
-  } catch (e) {
-    console.error("Exception fetching posts:", e)
+  } catch (e: any) {
+    console.error("[v0] Exception fetching posts:", e?.message || e)
     error = e
   }
 
