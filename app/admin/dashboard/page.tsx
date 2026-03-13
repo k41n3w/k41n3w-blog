@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import AdminDashboard from "@/components/admin/dashboard"
 
 export default async function AdminDashboardPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   // Buscar posts
   const { data: posts = [] } = await supabase

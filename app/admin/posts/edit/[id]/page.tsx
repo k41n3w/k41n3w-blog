@@ -4,7 +4,7 @@ import PostForm from "@/components/admin/post-form"
 import { TABLES } from "@/lib/supabase/config"
 
 export default async function EditPostPage({ params }: { params: { id: string } }) {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   // Verificar se o usuário está autenticado
   const {

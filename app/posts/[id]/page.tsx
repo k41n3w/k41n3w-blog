@@ -16,7 +16,7 @@ export const revalidate = 1800 // Revalidar a cada 30 minutos
 
 // Função para gerar metadados estáticos
 export async function generateMetadata({ params }: { params: { id: string } }) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: post } = await supabase
     .from(TABLES.POSTS)
     .select("title, excerpt, content, created_at")
@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
 }
 
 export default async function PostPage({ params }: { params: { id: string } }) {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   // Buscar post sem joins
   const { data: post, error: postError } = await supabase.from(TABLES.POSTS).select("*").eq("id", params.id).single()

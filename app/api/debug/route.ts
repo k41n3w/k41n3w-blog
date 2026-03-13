@@ -15,7 +15,7 @@ export async function GET() {
   let error = null
 
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data, error: supabaseError } = await supabase.from("posts").select("count").limit(1)
 
     if (supabaseError) {

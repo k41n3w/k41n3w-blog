@@ -30,7 +30,7 @@ const createClient = () => {
 
 // Authentication actions
 export async function signIn(formData: FormData) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const email = formData.get("email") as string
   const password = formData.get("password") as string
 
@@ -69,7 +69,7 @@ export async function signIn(formData: FormData) {
 }
 
 export async function signOut() {
-  const supabase = createClient()
+  const supabase = await createClient()
   await supabase.auth.signOut()
   revalidatePath("/")
   // Return the URL to redirect to instead of redirecting
@@ -79,7 +79,7 @@ export async function signOut() {
 // Post actions
 export async function createPost(formData: FormData) {
   console.log("Iniciando createPost")
-  const supabase = createClient()
+  const supabase = await createClient()
 
   // Get the current user
   const {
@@ -205,7 +205,7 @@ export async function createPost(formData: FormData) {
 }
 
 export async function updatePost(postId: string, formData: FormData) {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const title = formData.get("title") as string
   const content = formData.get("content") as string
@@ -277,7 +277,7 @@ export async function updatePost(postId: string, formData: FormData) {
 
 export async function deletePost(postId: string) {
   console.log("Iniciando deletePost para ID:", postId)
-  const supabase = createClient()
+  const supabase = await createClient()
 
   try {
     // Primeiro, remover as associações de tags
@@ -322,7 +322,7 @@ export async function deletePost(postId: string) {
 
 // Comment actions
 export async function createComment(formData: FormData) {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const postId = formData.get("postId") as string
   const author = formData.get("author") as string
@@ -348,7 +348,7 @@ export async function createComment(formData: FormData) {
 }
 
 export async function approveComment(commentId: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   try {
     const { data, error } = await supabase
@@ -369,7 +369,7 @@ export async function approveComment(commentId: string) {
 }
 
 export async function deleteComment(commentId: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   try {
     const { data, error } = await supabase.from(TABLES.COMMENTS).delete().eq("id", commentId).select("post_id").single()
@@ -386,7 +386,7 @@ export async function deleteComment(commentId: string) {
 
 // Like actions
 export async function incrementPostLikes(postId: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   try {
     // Call the RPC function
@@ -404,7 +404,7 @@ export async function incrementPostLikes(postId: string) {
 }
 
 export async function incrementCommentLikes(commentId: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   try {
     // Call the RPC function

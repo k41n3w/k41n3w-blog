@@ -30,7 +30,7 @@ export async function generateMetadata() {
 }
 
 export default async function ArchivePage() {
-  const supabase = createClient()
+  const supabase = await createClient()
   let error = null
   let posts = []
   let tags = []

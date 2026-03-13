@@ -14,7 +14,7 @@ interface PostsListProps {
 }
 
 export default async function PostsList({ page, postsPerPage, tag, sort }: PostsListProps) {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   // Calcular o offset para paginação
   const offset = (page - 1) * postsPerPage

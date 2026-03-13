@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { TABLES } from "@/lib/supabase/config"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   // Buscar todos os posts publicados
   const { data: posts = [] } = await supabase
