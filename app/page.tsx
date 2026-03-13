@@ -9,9 +9,9 @@ import Footer from "@/components/layout/footer"
 import { JsonLd } from "@/components/seo/json-ld"
 import { siteConfig } from "@/lib/seo/metadata"
 
-// Configuração para geração estática com revalidação
-export const dynamic = "force-static"
-export const revalidate = 3600 // Revalidar a cada hora
+// Forçar renderização dinâmica sem cache
+export const dynamic = "force-dynamic"
+export const revalidate = 0
 
 export default async function Home() {
   const supabase = createClient()
