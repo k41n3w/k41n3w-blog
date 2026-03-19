@@ -58,6 +58,11 @@ export default function RootLayout({
         <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* Matrix-style font */}
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap"
+        />
       </head>
       <body className={`${inter.className} antialiased overflow-x-hidden`}>
         <Suspense>

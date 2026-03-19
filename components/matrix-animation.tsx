@@ -29,8 +29,10 @@ export default function MatrixAnimation() {
     // Initial size
     updateCanvasSize()
 
-    // Matrix characters - voltando ao conjunto original de caracteres
-    const characters = "abcdefghijklmnopqrstuvwxyz0123456789$+-*/=%\"'#&_(),.;:?!\\|{}<>[]^~"
+    // Matrix characters - katakana
+    const characters =
+      "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン" +
+      "ァィゥェォッャュョ"
     const targetText = "k41n3w"
 
     // Array of character columns
