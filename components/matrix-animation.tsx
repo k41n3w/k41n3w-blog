@@ -219,16 +219,6 @@ export default function MatrixAnimation() {
   return (
     <>
       <canvas ref={canvasRef} className="absolute top-0 left-0 w-full h-full" />
-      <div
-        className={`absolute top-0 left-0 w-full h-full flex items-center justify-center transition-opacity duration-1000 ${
-          animationComplete ? "opacity-100" : "opacity-0"
-        }`}
-      >
-        <div className="text-center px-4">
-          <h1 className="text-3xl md:text-5xl font-bold text-red-600 mb-4">K41n3w Dev Notes</h1>
-          <p className="text-xl text-red-400">Ruby on Rails, inteligência artificial e além.</p>
-        </div>
-      </div>
       <div className="absolute bottom-0 w-full flex justify-center pb-4">
         <ArrowDown className="h-8 w-8 text-red-500 animate-bounce" />
       </div>
