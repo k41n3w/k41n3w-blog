@@ -62,33 +62,33 @@ export default function CodeBlock({ code, language, filename }: CodeBlockProps) 
   if (!code || code.trim() === "") {
     return (
       <div className="code-block-wrapper my-6 rounded-md overflow-hidden w-full max-w-full">
-        <div className="code-block-header px-4 py-2 flex justify-between items-center bg-gray-800 border-b border-gray-700 flex-wrap">
-          {filename && <span className="text-sm text-gray-300 break-all">{filename}</span>}
-          {!filename && <span className="text-xs text-gray-400">{highlightLanguage}</span>}
+        <div className="code-block-header px-4 py-2 flex justify-between items-center bg-zinc-900 border-b border-zinc-700 flex-wrap">
+          {filename && <span className="text-sm text-zinc-300 break-all">{filename}</span>}
+          {!filename && <span className="text-xs text-zinc-500">{highlightLanguage}</span>}
         </div>
-        <div className="bg-gray-900 p-4 text-gray-400 text-sm">// Código não disponível</div>
+        <div className="bg-zinc-950 p-4 text-zinc-500 text-sm">// Código não disponível</div>
       </div>
     )
   }
 
   return (
     <div className="code-block-wrapper my-6 rounded-md overflow-hidden w-full max-w-full">
-      <div className="code-block-header px-4 py-2 flex justify-between items-center bg-gray-800 border-b border-gray-700 flex-wrap">
-        {filename && <span className="text-sm text-gray-300 break-all">{filename}</span>}
+      <div className="code-block-header px-4 py-2 flex justify-between items-center bg-zinc-900 border-b border-zinc-700 flex-wrap">
+        {filename && <span className="text-sm text-zinc-300 break-all">{filename}</span>}
         <div className="flex items-center">
-          <span className="text-xs text-gray-400 mr-2">{highlightLanguage}</span>
+          <span className="text-xs text-zinc-500 mr-2">{highlightLanguage}</span>
           <button
             onClick={handleCopy}
-            className="p-1 rounded hover:bg-gray-700 transition-colors"
+            className="p-1 rounded hover:bg-zinc-700 transition-colors"
             title="Copiar código"
           >
-            {copied ? <Check className="h-4 w-4 text-green-500" /> : <Clipboard className="h-4 w-4 text-gray-400" />}
+            {copied ? <Check className="h-4 w-4 text-green-500" /> : <Clipboard className="h-4 w-4 text-zinc-400" />}
           </button>
         </div>
       </div>
-      <div className="bg-gray-900 p-0 m-0 w-full max-w-full overflow-x-auto">
+      <div className="bg-zinc-950 p-0 m-0 w-full max-w-full overflow-x-auto">
         <pre className="p-4 m-0 overflow-x-auto w-full">
-          <code ref={codeRef} className={`language-${highlightLanguage}`}>
+          <code ref={codeRef} className={`language-${highlightLanguage}`} suppressHydrationWarning>
             {code}
           </code>
         </pre>

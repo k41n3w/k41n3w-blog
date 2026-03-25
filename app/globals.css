@@ -59,6 +59,7 @@ table {
 .prose p {
   @apply mb-4 leading-relaxed text-zinc-300;
   overflow-wrap: break-word;
+  text-align: justify;
 }
 
 .prose a {

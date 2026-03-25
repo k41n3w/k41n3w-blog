@@ -1,12 +1,19 @@
 import type { Metadata } from "next"
 
+// URL base do site (necessário para OG tags absolutas)
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
+  ? new URL(process.env.NEXT_PUBLIC_SITE_URL)
+  : process.env.VERCEL_URL
+    ? new URL(`https://${process.env.VERCEL_URL}`)
+    : new URL("http://localhost:3000")
+
 // Configurações base para o site
 export const siteConfig = {
-  name: "Ruby on Rails Tech Blog",
+  name: "k41n3w | Ruby on Rails Tech Blog",
   description:
     "Insights técnicos e boas práticas de um Rails Tech Lead. Aprenda desenvolvimento web, Ruby on Rails, e arquitetura de software.",
-  url: "/", // Alterado para URL relativa
-  ogImage: "/images/og-image.jpg",
+  url: baseUrl.toString(),
+  ogImage: "/opengraph-image",
   author: "Caio Ramos",
   twitterHandle: "@k41n3w",
   keywords: [
@@ -26,7 +33,7 @@ export const siteConfig = {
 // Função para gerar metadados base para todas as páginas
 export function generateBaseMetadata(): Metadata {
   return {
-    // Removendo metadataBase que dependia de URL absoluta
+    metadataBase: baseUrl,
     title: {
       default: siteConfig.name,
       template: `%s | ${siteConfig.name}`,
@@ -74,11 +81,8 @@ export function generateBaseMetadata(): Metadata {
       creator: siteConfig.twitterHandle,
     },
     icons: {
-      icon: "/favicon.ico",
-      shortcut: "/favicon-16x16.png",
-      apple: "/apple-touch-icon.png",
+      icon: "/icon",
     },
-    manifest: "/site.webmanifest",
   }
 }
 

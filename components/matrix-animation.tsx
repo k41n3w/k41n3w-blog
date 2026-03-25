@@ -33,7 +33,7 @@ export default function MatrixAnimation() {
     const characters =
       "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン" +
       "ァィゥェォッャュョ"
-    const targetText = "k41n3w"
+    const targetText = "Kaineo"
 
     // Array of character columns
     const fontSize = 15
