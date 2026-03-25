@@ -50,10 +50,35 @@ export default function OGImage() {
             fontSize: 26,
             fontFamily: "monospace",
             letterSpacing: "1px",
+            marginBottom: 48,
           }}
         >
           Engenharia de software com propósito. Rails, IA e decisões que escalam.
         </span>
+
+        {/* CTA */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: "2px solid #dc2626",
+            padding: "12px 36px",
+            gap: 12,
+          }}
+        >
+          <span
+            style={{
+              color: "#ffffff",
+              fontSize: 22,
+              fontFamily: "monospace",
+              letterSpacing: "2px",
+            }}
+          >
+            Leia os posts
+          </span>
+          <span style={{ color: "#dc2626", fontSize: 22, fontFamily: "monospace" }}>→</span>
+        </div>
       </div>
     ),
     { ...size }

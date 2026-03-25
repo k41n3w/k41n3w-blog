@@ -9,7 +9,7 @@ const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
 
 // Configurações base para o site
 export const siteConfig = {
-  name: "k41n3w | Ruby on Rails Tech Blog",
+  name: "k41n3w | Blog de Rails, IA e Engenharia de Software",
   description:
     "Engenharia de software com propósito. Rails, IA e decisões que escalam — insights de um Tech Lead para devs que pensam além do sprint.",
   url: baseUrl.toString(),
