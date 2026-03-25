@@ -45,7 +45,7 @@ export default function Footer() {
           <div className="flex flex-col items-center md:items-start">
             <h3 className="text-xl font-bold text-white mb-1">k41n3w</h3>
             <span className="block h-0.5 w-8 bg-red-600 mb-3" />
-            <p className="text-zinc-500">Entre códigos, dados e ideias: Rails, IA e inovação.</p>
+            <p className="text-zinc-500">Engenharia de software com propósito. Rails, IA e decisões que escalam.</p>
           </div>
           <div className="flex flex-col items-center md:items-start">
             <h3 className="text-xl font-bold text-white mb-1">Links</h3>

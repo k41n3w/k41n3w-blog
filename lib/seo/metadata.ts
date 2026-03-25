@@ -11,7 +11,7 @@ const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
 export const siteConfig = {
   name: "k41n3w | Ruby on Rails Tech Blog",
   description:
-    "Insights técnicos e boas práticas de um Rails Tech Lead. Aprenda desenvolvimento web, Ruby on Rails, e arquitetura de software.",
+    "Engenharia de software com propósito. Rails, IA e decisões que escalam — insights de um Tech Lead para devs que pensam além do sprint.",
   url: baseUrl.toString(),
   ogImage: "/opengraph-image",
   author: "Caio Ramos",

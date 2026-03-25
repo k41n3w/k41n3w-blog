@@ -47,12 +47,12 @@ export default function OGImage() {
         <span
           style={{
             color: "#71717a",
-            fontSize: 28,
+            fontSize: 26,
             fontFamily: "monospace",
-            letterSpacing: "2px",
+            letterSpacing: "1px",
           }}
         >
-          Rails · IA · Inovação
+          Engenharia de software com propósito. Rails, IA e decisões que escalam.
         </span>
       </div>
     ),
