@@ -201,25 +201,25 @@ export default function ClientArchive({ posts, allTags }: ClientArchiveProps) {
     <>
       {/* Filtros */}
       <div className="mb-8">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gray-900 p-4 rounded-lg border border-gray-800">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-zinc-950 p-4 rounded-lg border border-zinc-800">
           <div className="flex items-center">
-            <Filter className="h-5 w-5 text-red-500 mr-2" />
-            <span className="text-gray-300 mr-2">Filtrar por:</span>
+            <Filter className="h-5 w-5 text-zinc-500 mr-2" />
+            <span className="text-zinc-400 mr-2">Filtrar por:</span>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full sm:w-auto border-gray-700 bg-gray-800">
+                <Button variant="outline" className="w-full sm:w-auto border-zinc-700 bg-zinc-900 text-zinc-300 hover:bg-zinc-800 hover:text-white">
                   <Filter className="h-4 w-4 mr-2" />
                   {selectedTagName}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-gray-800 border-gray-700 text-white">
-                <DropdownMenuLabel>Tags</DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-gray-700" />
+              <DropdownMenuContent className="bg-zinc-900 border-zinc-700 text-white">
+                <DropdownMenuLabel className="text-zinc-400">Tags</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-zinc-700" />
                 <DropdownMenuItem
-                  className={`${!selectedTag ? "bg-gray-700" : ""} hover:bg-gray-700 cursor-pointer`}
+                  className={`${!selectedTag ? "bg-zinc-800" : ""} hover:bg-zinc-800 cursor-pointer`}
                   onClick={() => {
                     setSelectedTag("")
                     setCurrentPage(1)
@@ -230,7 +230,7 @@ export default function ClientArchive({ posts, allTags }: ClientArchiveProps) {
                 {allTags.map((tag) => (
                   <DropdownMenuItem
                     key={tag.id}
-                    className={`${selectedTag === tag.id ? "bg-gray-700" : ""} hover:bg-gray-700 cursor-pointer`}
+                    className={`${selectedTag === tag.id ? "bg-zinc-800" : ""} hover:bg-zinc-800 cursor-pointer`}
                     onClick={() => {
                       setSelectedTag(tag.id)
                       setCurrentPage(1)
@@ -244,37 +244,37 @@ export default function ClientArchive({ posts, allTags }: ClientArchiveProps) {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full sm:w-auto border-gray-700 bg-gray-800">
+                <Button variant="outline" className="w-full sm:w-auto border-zinc-700 bg-zinc-900 text-zinc-300 hover:bg-zinc-800 hover:text-white">
                   {getSortIcon(sortOrder)}
                   {getSortName(sortOrder)}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-gray-800 border-gray-700 text-white">
-                <DropdownMenuLabel>Ordenar por</DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-gray-700" />
+              <DropdownMenuContent className="bg-zinc-900 border-zinc-700 text-white">
+                <DropdownMenuLabel className="text-zinc-400">Ordenar por</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-zinc-700" />
                 <DropdownMenuItem
-                  className={`${sortOrder === "newest" ? "bg-gray-700" : ""} hover:bg-gray-700 cursor-pointer`}
+                  className={`${sortOrder === "newest" ? "bg-zinc-800" : ""} hover:bg-zinc-800 cursor-pointer`}
                   onClick={() => setSortOrder("newest")}
                 >
                   <SortDesc className="h-4 w-4 mr-2" />
                   Mais recentes
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className={`${sortOrder === "oldest" ? "bg-gray-700" : ""} hover:bg-gray-700 cursor-pointer`}
+                  className={`${sortOrder === "oldest" ? "bg-zinc-800" : ""} hover:bg-zinc-800 cursor-pointer`}
                   onClick={() => setSortOrder("oldest")}
                 >
                   <SortAsc className="h-4 w-4 mr-2" />
                   Mais antigos
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className={`${sortOrder === "popular" ? "bg-gray-700" : ""} hover:bg-gray-700 cursor-pointer`}
+                  className={`${sortOrder === "popular" ? "bg-zinc-800" : ""} hover:bg-zinc-800 cursor-pointer`}
                   onClick={() => setSortOrder("popular")}
                 >
                   <Eye className="h-4 w-4 mr-2" />
                   Mais visualizados
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className={`${sortOrder === "most-liked" ? "bg-gray-700" : ""} hover:bg-gray-700 cursor-pointer`}
+                  className={`${sortOrder === "most-liked" ? "bg-zinc-800" : ""} hover:bg-zinc-800 cursor-pointer`}
                   onClick={() => setSortOrder("most-liked")}
                 >
                   <ThumbsUp className="h-4 w-4 mr-2" />
@@ -289,15 +289,13 @@ export default function ClientArchive({ posts, allTags }: ClientArchiveProps) {
       {/* Lista de Posts */}
       {currentPosts.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-gray-400">Nenhum post encontrado com os filtros selecionados.</p>
+          <p className="text-zinc-500">Nenhum post encontrado com os filtros selecionados.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {currentPosts.map((post) => {
-            // Criar um resumo do conteúdo se não houver excerpt
             const excerpt = post.excerpt || post.content.replace(/<[^>]*>/g, "").substring(0, 150) + "..."
 
-            // Formatar a data de forma segura
             let formattedDate = "Data não disponível"
             try {
               if (post.created_at) {
@@ -315,26 +313,26 @@ export default function ClientArchive({ posts, allTags }: ClientArchiveProps) {
             }
 
             return (
-              <Card key={post.id} className="bg-gray-900 border-gray-800 text-white flex flex-col">
+              <Card key={post.id} className="bg-zinc-950 border border-zinc-800 text-white hover:border-red-600 hover:shadow-lg hover:shadow-red-950/30 transition-all duration-200 flex flex-col">
                 <CardHeader>
-                  <CardTitle className="text-red-500 hover:text-red-400">
+                  <CardTitle className="text-white hover:text-red-400 transition-colors">
                     <Link href={`/posts/${post.id}`}>{post.title}</Link>
                   </CardTitle>
-                  <div className="flex items-center text-gray-400 text-sm mt-2">
-                    <Calendar className="h-4 w-4 mr-1" />
+                  <div className="flex items-center text-zinc-500 text-xs mt-2">
+                    <Calendar className="h-3 w-3 mr-1" />
                     <span>{formattedDate}</span>
-                    <span className="mx-2">•</span>
+                    <span className="mx-2">·</span>
                     <span>por Caio Ramos</span>
                   </div>
                 </CardHeader>
                 <CardContent className="flex-grow">
-                  <p className="text-gray-300 mb-4">{excerpt}</p>
+                  <p className="text-zinc-400 mb-4 text-sm leading-relaxed">{excerpt}</p>
                   <div className="flex flex-wrap gap-2">
                     {post.tags.map((tag) => (
                       <Badge
                         key={tag.id}
                         variant="outline"
-                        className="border-red-500 text-red-400 hover:bg-red-900/20 cursor-pointer"
+                        className="border-zinc-700 text-zinc-500 hover:border-red-600 hover:text-red-400 transition-colors cursor-pointer text-xs"
                         onClick={() => {
                           setSelectedTag(tag.id)
                           setCurrentPage(1)
@@ -346,19 +344,19 @@ export default function ClientArchive({ posts, allTags }: ClientArchiveProps) {
                     ))}
                   </div>
                 </CardContent>
-                <CardFooter className="flex justify-between border-t border-gray-800 pt-4">
+                <CardFooter className="flex justify-between border-t border-zinc-800 pt-4">
                   <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-1">
-                      <Heart className="h-4 w-4 text-red-500" />
-                      <span className="text-sm">{post.likes || 0}</span>
+                    <div className="flex items-center space-x-1 text-zinc-600">
+                      <Heart className="h-4 w-4" />
+                      <span className="text-xs">{post.likes || 0}</span>
                     </div>
-                    <div className="flex items-center space-x-1">
-                      <MessageSquare className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm">{post.commentCount}</span>
+                    <div className="flex items-center space-x-1 text-zinc-600">
+                      <MessageSquare className="h-4 w-4" />
+                      <span className="text-xs">{post.commentCount}</span>
                     </div>
                   </div>
                   <Link href={`/posts/${post.id}`}>
-                    <Button variant="ghost" className="text-red-500 hover:text-red-400 hover:bg-gray-800 p-0">
+                    <Button variant="ghost" className="text-zinc-400 hover:text-white hover:bg-zinc-800 p-0 text-sm">
                       Ler mais <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
@@ -374,7 +372,7 @@ export default function ClientArchive({ posts, allTags }: ClientArchiveProps) {
         <div className="flex justify-center items-center space-x-2 mt-8">
           <Button
             variant="outline"
-            className="border-gray-700 bg-gray-800 hover:bg-gray-700"
+            className="border-zinc-700 bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-white"
             onClick={() => changePage(currentPage - 1)}
             disabled={currentPage === 1}
           >
@@ -385,7 +383,7 @@ export default function ClientArchive({ posts, allTags }: ClientArchiveProps) {
           {getPageNumbers().map((page, index) => {
             if (page === "ellipsis-start" || page === "ellipsis-end") {
               return (
-                <span key={`ellipsis-${index}`} className="px-3 py-2 text-gray-400">
+                <span key={`ellipsis-${index}`} className="px-3 py-2 text-zinc-600">
                   ...
                 </span>
               )
@@ -396,7 +394,7 @@ export default function ClientArchive({ posts, allTags }: ClientArchiveProps) {
                 key={`page-${page}`}
                 variant={currentPage === page ? "default" : "outline"}
                 className={
-                  currentPage === page ? "bg-red-600 hover:bg-red-700" : "border-gray-700 bg-gray-800 hover:bg-gray-700"
+                  currentPage === page ? "bg-red-600 hover:bg-red-500 text-white" : "border-zinc-700 bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-white"
                 }
                 onClick={() => changePage(page as number)}
               >
@@ -407,7 +405,7 @@ export default function ClientArchive({ posts, allTags }: ClientArchiveProps) {
 
           <Button
             variant="outline"
-            className="border-gray-700 bg-gray-800 hover:bg-gray-700"
+            className="border-zinc-700 bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-white"
             onClick={() => changePage(currentPage + 1)}
             disabled={currentPage === totalPages}
           >

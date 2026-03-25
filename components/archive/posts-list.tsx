@@ -193,24 +193,24 @@ export default async function PostsList({ page, postsPerPage, tag, sort }: Posts
           const excerpt = post.excerpt || post.content.replace(/<[^>]*>/g, "").substring(0, 150) + "..."
 
           return (
-            <Card key={post.id} className="bg-gray-900 border-gray-800 text-white flex flex-col">
+            <Card key={post.id} className="bg-zinc-950 border border-zinc-800 text-white hover:border-red-600 hover:shadow-lg hover:shadow-red-950/30 transition-all duration-200 flex flex-col">
               <CardHeader>
-                <CardTitle className="text-red-500 hover:text-red-400">
+                <CardTitle className="text-white hover:text-red-400 transition-colors">
                   <Link href={`/posts/${post.id}`}>{post.title}</Link>
                 </CardTitle>
-                <div className="flex items-center text-gray-400 text-sm mt-2">
-                  <Calendar className="h-4 w-4 mr-1" />
-                  <span>{new Date(post.created_at).toLocaleDateString()}</span>
-                  <span className="mx-2">•</span>
+                <div className="flex items-center text-zinc-500 text-xs mt-2">
+                  <Calendar className="h-3 w-3 mr-1" />
+                  <span>{new Date(post.created_at).toLocaleDateString("pt-BR")}</span>
+                  <span className="mx-2">·</span>
                   <span>por Caio Ramos</span>
                 </div>
               </CardHeader>
               <CardContent className="flex-grow">
-                <p className="text-gray-300 mb-4">{excerpt}</p>
+                <p className="text-zinc-400 mb-4 text-sm leading-relaxed">{excerpt}</p>
                 <div className="flex flex-wrap gap-2">
                   {tags.map((tag) => (
                     <Link key={tag.id} href={`/archive?tag=${tag.id}`}>
-                      <Badge variant="outline" className="border-red-500 text-red-400 hover:bg-red-900/20">
+                      <Badge variant="outline" className="border-zinc-700 text-zinc-500 hover:border-red-600 hover:text-red-400 transition-colors text-xs">
                         <Tag className="h-3 w-3 mr-1" />
                         {tag.name}
                       </Badge>
@@ -218,19 +218,19 @@ export default async function PostsList({ page, postsPerPage, tag, sort }: Posts
                   ))}
                 </div>
               </CardContent>
-              <CardFooter className="flex justify-between border-t border-gray-800 pt-4">
+              <CardFooter className="flex justify-between border-t border-zinc-800 pt-4">
                 <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-1">
-                    <Heart className="h-4 w-4 text-red-500" />
-                    <span className="text-sm">{post.likes || 0}</span>
+                  <div className="flex items-center space-x-1 text-zinc-600">
+                    <Heart className="h-4 w-4" />
+                    <span className="text-xs">{post.likes || 0}</span>
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <MessageSquare className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm">{commentCount}</span>
+                  <div className="flex items-center space-x-1 text-zinc-600">
+                    <MessageSquare className="h-4 w-4" />
+                    <span className="text-xs">{commentCount}</span>
                   </div>
                 </div>
                 <Link href={`/posts/${post.id}`}>
-                  <Button variant="ghost" className="text-red-500 hover:text-red-400 hover:bg-gray-800 p-0">
+                  <Button variant="ghost" className="text-zinc-400 hover:text-white hover:bg-zinc-800 p-0 text-sm">
                     Ler mais <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>

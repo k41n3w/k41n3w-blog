@@ -179,9 +179,9 @@ export default async function ArchivePage() {
       <JsonLd data={blogSchema} />
 
       {/* Header */}
-      <header className="bg-gray-900 border-b border-gray-800 py-4">
+      <header className="bg-zinc-950 border-b border-zinc-800 py-4">
         <div className="max-w-6xl mx-auto px-4">
-          <Link href="/" className="flex items-center text-red-500 hover:text-red-400">
+          <Link href="/" className="flex items-center text-zinc-400 hover:text-white transition-colors">
             <ArrowLeft className="mr-2 h-5 w-5" />
             Voltar para home
           </Link>
@@ -192,11 +192,12 @@ export default async function ArchivePage() {
       <main className="max-w-6xl mx-auto px-4 py-8">
         <Breadcrumbs items={[{ label: "Arquivo", href: "/archive" }]} />
 
-        <h1 className="text-4xl font-bold text-red-500 mb-8">Arquivo de Posts</h1>
+        <h1 className="text-4xl font-bold text-white mb-2">Arquivo de Posts</h1>
+        <span className="block h-0.5 w-16 bg-red-600 mb-8" />
 
         {error ? (
-          <div className="bg-red-900/30 border border-red-700 rounded-lg p-4 mb-8">
-            <h2 className="text-xl font-bold text-red-500 mb-2">Erro ao carregar dados</h2>
+          <div className="bg-red-950/40 border border-red-900 rounded-lg p-4 mb-8">
+            <h2 className="text-xl font-bold text-white mb-2">Erro ao carregar dados</h2>
             <p className="text-white mb-2">
               Ocorreu um erro ao carregar os dados. Por favor, tente novamente mais tarde.
             </p>
