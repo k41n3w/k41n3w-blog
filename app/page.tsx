@@ -143,20 +143,25 @@ export default async function Home() {
       <JsonLd data={organizationSchema} />
       <JsonLd data={blogPostingListSchema} />
 
-      {/* Matrix Animation Header - aumentando a altura para 500px */}
+      {/* Matrix Animation Hero */}
       <div className="relative w-full h-[650px]">
         <MatrixAnimation />
       </div>
 
       {/* Latest Posts Section */}
-      <section className="py-12 px-4 w-full box-border">
+      <section className="py-16 px-4 w-full box-border">
         <div className="max-w-6xl mx-auto w-full">
-          <h1 className="text-3xl font-bold mb-8 text-red-500 text-center">Últimas postagens</h1>
+          <div className="mb-10 text-center">
+            <h2 className="text-3xl font-bold text-white inline-block pb-2">
+              Últimas postagens
+              <span className="block h-0.5 bg-red-600 mt-2" />
+            </h2>
+          </div>
+
           {formattedPosts.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-gray-400">No posts found. Check back soon!</p>
-              {/* Debug info */}
-              <p className="text-xs text-gray-600 mt-2">
+              <p className="text-zinc-400">No posts found. Check back soon!</p>
+              <p className="text-xs text-zinc-600 mt-2">
                 Debug: {posts ? `${posts.length} posts retrieved` : "No posts data"}
                 {error ? ` | Error: ${error.message || "Unknown error"}` : ""}
               </p>
@@ -164,26 +169,29 @@ export default async function Home() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {formattedPosts.map((post) => (
-                <Card key={post.id} className="bg-gray-900 border-gray-800 text-white">
+                <Card
+                  key={post.id}
+                  className="bg-zinc-950 border border-zinc-800 text-white hover:border-red-600 hover:shadow-lg hover:shadow-red-950/30 transition-all duration-200 flex flex-col"
+                >
                   <CardHeader>
-                    <CardTitle className="text-red-500 hover:text-red-400 break-words">
+                    <CardTitle className="text-white hover:text-red-400 transition-colors break-words leading-snug">
                       <Link href={`/posts/${post.id}`}>{post.title}</Link>
                     </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-400 text-sm mb-2">
-                      {post.date} • by {post.author}
+                    <p className="text-zinc-500 text-xs mt-1">
+                      {post.date} · {post.author}
                     </p>
-                    <p className="text-gray-300 break-words">{post.excerpt}</p>
+                  </CardHeader>
+                  <CardContent className="flex-grow">
+                    <p className="text-zinc-400 break-words text-sm leading-relaxed">{post.excerpt}</p>
                   </CardContent>
-                  <CardFooter className="flex justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Heart className="h-5 w-5 text-red-500" />
-                      <span className="text-sm">{post.likes}</span>
+                  <CardFooter className="flex justify-between border-t border-zinc-800 pt-4 mt-2">
+                    <div className="flex items-center space-x-1 text-zinc-600">
+                      <Heart className="h-4 w-4" />
+                      <span className="text-xs">{post.likes}</span>
                     </div>
                     <Link href={`/posts/${post.id}`}>
-                      <Button variant="ghost" className="text-red-500 hover:text-red-400 hover:bg-gray-800">
-                        Saiba mais <ArrowRight className="ml-2 h-4 w-4" />
+                      <Button variant="ghost" className="text-zinc-400 hover:text-white hover:bg-zinc-800 px-2 py-1 h-auto text-sm">
+                        Saiba mais <ArrowRight className="ml-1 h-3 w-3" />
                       </Button>
                     </Link>
                   </CardFooter>
@@ -191,9 +199,12 @@ export default async function Home() {
               ))}
             </div>
           )}
-          <div className="mt-8 text-center">
+
+          <div className="mt-10 text-center">
             <Link href="/archive">
-              <Button className="bg-red-600 hover:bg-red-700 text-white">View All Posts</Button>
+              <Button className="bg-red-600 hover:bg-red-500 text-white font-semibold px-8 py-2 transition-colors duration-200">
+                Ver todos os posts
+              </Button>
             </Link>
           </div>
         </div>

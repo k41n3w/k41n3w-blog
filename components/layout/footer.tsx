@@ -39,28 +39,30 @@ export default function Footer() {
   ]
 
   return (
-    <footer className="py-8 bg-gray-900 border-t border-gray-800 w-full overflow-hidden">
+    <footer className="py-8 bg-zinc-950 border-t border-zinc-800 w-full overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 box-border text-center md:text-left">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="flex flex-col items-center md:items-start">
-            <h3 className="text-xl font-bold text-red-500 mb-4">k41n3w</h3>
-            <p className="text-gray-400">Entre códigos, dados e ideias: Rails, IA e inovação.</p>
+            <h3 className="text-xl font-bold text-white mb-1">k41n3w</h3>
+            <span className="block h-0.5 w-8 bg-red-600 mb-3" />
+            <p className="text-zinc-500">Entre códigos, dados e ideias: Rails, IA e inovação.</p>
           </div>
           <div className="flex flex-col items-center md:items-start">
-            <h3 className="text-xl font-bold text-red-500 mb-4">Links</h3>
-            <ul className="space-y-2 text-gray-400">
+            <h3 className="text-xl font-bold text-white mb-1">Links</h3>
+            <span className="block h-0.5 w-8 bg-red-600 mb-3" />
+            <ul className="space-y-2 text-zinc-500">
               <li>
-                <Link href="/" className="hover:text-red-400">
+                <Link href="/" className="hover:text-white transition-colors">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="hover:text-red-400">
+                <Link href="/about" className="hover:text-white transition-colors">
                   About
                 </Link>
               </li>
               <li>
-                <Link href="/archive" className="hover:text-red-400">
+                <Link href="/archive" className="hover:text-white transition-colors">
                   Archive
                 </Link>
               </li>
@@ -69,22 +71,22 @@ export default function Footer() {
         </div>
 
         {/* Social Media Icons */}
-        <div className="mt-8 pt-6 border-t border-gray-800 flex flex-col items-center">
-          <h3 className="text-lg font-semibold text-red-500 mb-4">Você me encontra em:</h3>
-          <div className="flex flex-wrap justify-center gap-4 mb-6">
+        <div className="mt-8 pt-6 border-t border-zinc-800 flex flex-col items-center">
+          <p className="text-zinc-500 text-sm mb-4">Você me encontra em:</p>
+          <div className="flex flex-wrap justify-center gap-3 mb-6">
             {socialLinks.map((social) => (
               <a
                 key={social.name}
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`text-gray-400 transition-all duration-300 transform hover:scale-110 ${social.color}`}
+                className={`text-zinc-500 transition-all duration-200 transform hover:scale-105 ${social.color}`}
                 aria-label={social.name}
               >
                 <TooltipProvider>
                   <TooltipRoot>
                     <TooltipTrigger asChild>
-                      <div className="bg-gray-800 p-3 hover:bg-gray-700 transition-colors">{social.icon}</div>
+                      <div className="bg-zinc-900 border border-zinc-800 p-3 hover:border-zinc-600 transition-colors">{social.icon}</div>
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>{social.name}</p>
@@ -94,7 +96,7 @@ export default function Footer() {
               </a>
             ))}
           </div>
-          <p className="text-gray-500">&copy; {currentYear} k41n3w. All rights reserved.</p>
+          <p className="text-zinc-600 text-sm">&copy; {currentYear} k41n3w. All rights reserved.</p>
         </div>
       </div>
     </footer>
